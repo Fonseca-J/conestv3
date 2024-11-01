@@ -26,6 +26,18 @@ function createWindow() {
     ipcMain.on('open-client', () => {
         clientWindow()
     })
+
+    ipcMain.on('open-supplier', () => {
+        supplierWindow()
+    })
+
+    ipcMain.on('open-product', () => {
+        productWindow()
+    })
+
+    ipcMain.on('open-report', () => {
+        reportWindow()
+    })
 }
 
 // Janela Sobre
@@ -88,6 +100,79 @@ function clientWindow () {
     client.loadFile('./src/views/clientes.html')
 
     }
+
+// Janela Fornecedores
+function supplierWindow () {
+    nativeTheme.themeSource = "light"
+    // A linha abaixo obtem a janela principal
+    const main = BrowserWindow.getFocusedWindow()
+    let supplier
+    // Validar a janela pai
+    if (main) {
+        supplier = new BrowserWindow ({
+            width: 800,
+            height: 600,
+            autoHideMenuBar: true, // Esconder o menu
+            parent: main, // Estabelecer uma hierarquia de janelas
+            modal: true,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js')
+            }
+         })
+    }
+    
+    supplier.loadFile('./src/views/fornecedores.html')
+
+    }  
+    
+    // Janela Produtos
+function productWindow () {
+    nativeTheme.themeSource = "light"
+    // A linha abaixo obtem a janela principal
+    const main = BrowserWindow.getFocusedWindow()
+    let product
+    // Validar a janela pai
+    if (main) {
+        product = new BrowserWindow ({
+            width: 800,
+            height: 600,
+            autoHideMenuBar: true, // Esconder o menu
+            parent: main, // Estabelecer uma hierarquia de janelas
+            modal: true,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js')
+            }
+         })
+    }
+    
+    product.loadFile('./src/views/produtos.html')
+
+    }
+
+    // Janela Relatórios
+function reportWindow () {
+    nativeTheme.themeSource = "light"
+    // A linha abaixo obtem a janela principal
+    const main = BrowserWindow.getFocusedWindow()
+    let report
+    // Validar a janela pai
+    if (main) {
+        report = new BrowserWindow ({
+            width: 800,
+            height: 600,
+            autoHideMenuBar: true, // Esconder o menu
+            parent: main, // Estabelecer uma hierarquia de janelas
+            modal: true,
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js')
+            }
+         })
+    }
+    
+    report.loadFile('./src/views/relatorios.html')
+
+    }
+
 
 // Execução assíncrona do aplicativo electron
 app.whenReady().then(() => {
