@@ -22,3 +22,17 @@ function produtos() {
 function relatorios() {
     api.janelaRelatorios()
 }
+
+// Inserção da data no rodapé
+
+function obterData() {
+    const data = new Date()
+    const optinons = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }
+    return data.toLocaleDateString('pt-BR', optinons)
+}
+document.getElementById('dataAtual').innerHTML = obterData()

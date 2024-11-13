@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/Fonseca-J/conestv3#readme",
   "dependencies": {
-    "electron": "^33.0.2"
+    "electron": "^33.0.2",
+    "mongoose": "^8.8.1",
+    "moongoose": "^0.0.5"
   }
 }
