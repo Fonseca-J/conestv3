@@ -194,6 +194,8 @@ app.whenReady().then(() => {
     ipcMain.on('db-connect', async(event, message) => {
         // A linha abaixo estabelece a conexão com o banco
         dbcon = await dbConnect()
+        // enviar ao redenrizador uma mensagem para trocar o icone do status do banco de dados
+        event.reply('db-message', "conectado")
     })
 
     // Desconctar do banco ao encerra a aplicação
