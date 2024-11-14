@@ -12,7 +12,7 @@ const url = 'mongodb+srv://admin:123senac@conest.0ul5b.mongodb.net/'
 let isConnected = false
 
 // Só estabelecer uma nova conexão se não estiver conectado
-const deConnect = async () => {
+const dbConnect = async () => {
     if (isConnected === false) {
         await conectar()
     }
@@ -25,7 +25,7 @@ const conectar = async () => {
             // alinha abaixo abre a conexão com o MongoDB
             await mongoose.connect(url)
             isConnected = true // sinalizar que o banco está conectado
-            console.log('MongoDB consctado')
+            console.log('MongoDB conectado')
         } catch (erro) {
             console.log(`Problema detectado: ${error}`)
         }
@@ -33,7 +33,7 @@ const conectar = async () => {
 }
 
 // Desconectar
-const deconectar = async () => {
+const desconectar = async () => {
     if (isConnected === true) {
         try {
             // alinha abaixo encerra a conexão com o MongoDB
@@ -45,3 +45,6 @@ const deconectar = async () => {
         }
     }
 }
+
+// Exportar para o "main" as funções desejadas
+module.exports = {dbConnect, desconectar}

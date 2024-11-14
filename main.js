@@ -189,10 +189,16 @@ app.whenReady().then(() => {
 
     // Melhor local para estabelecer a conexão com o banco de dados
     // Importar o módulo de conexão no início do código
+
+    // Conexão com o banco
     ipcMain.on('db-connect', async(event, message) => {
         // A linha abaixo estabelece a conexão com o banco
         dbcon = await dbConnect()
-        
+    })
+
+    // Desconctar do banco ao encerra a aplicação
+    app.on('before-quit', async () => {
+        await desconectar(dbcon)
     })
 
     // Comportamento do MAC ao fechar uma janela
@@ -270,7 +276,7 @@ const template = [
         submenu: [
             {
                 label: 'Repositório',
-                click: () => shell.openExternal('https://github.com/andrewdantas/conestv3')
+                click: () => shell.openExternal('https://github.com/Fonseca-J/conestv3')
             },
 
             {
