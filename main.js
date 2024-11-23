@@ -2,7 +2,7 @@
 // nativeTheme (forçar um tema no sistema operacional)
 // Menu (criar um menu personalizado)
 // shell (acessar links externos)
-const { app, BrowserWindow, nativeTheme, Menu, shell, ipcMain} = require('electron/main')
+const { app, BrowserWindow, nativeTheme, Menu, shell, ipcMain, dialog} = require('electron/main')
 const path = require('node:path')
 
 
@@ -13,6 +13,9 @@ const { dbConnect, desconectar } = require('./database.js')
 
 // A variável abaixo é usada para garantir que o banco de dados inicie desconectado (evitar abrir outra instancia)
 let dbcon = null
+
+// Importação do Schema Clientes da camada Model
+const clienteModel = require('./src/models/Clientes.js')
 
 // Janela Principal
 let win
@@ -26,8 +29,8 @@ function createWindow() {
         }
     })
 
-    // Menu personalizado
-    Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+    // Menu personalizado (comentar para debugar)
+    // Menu.setApplicationMenu(Menu.buildFromTemplate(template))
     
     win.loadFile('./src/views/index.html')
 
@@ -97,7 +100,7 @@ function clientWindow () {
         client = new BrowserWindow ({
             width: 800,
             height: 600,
-            autoHideMenuBar: true, // Esconder o menu
+            // autoHideMenuBar: true, // Esconder o menu
             parent: main, // Estabelecer uma hierarquia de janelas
             modal: true,
             webPreferences: {
@@ -288,3 +291,36 @@ const template = [
         ]
     }
 ]
+
+// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Recebimento dos dados do formulário
+ipcMain.on('new-client', async (event, cliente) => {
+    // Teste do recebimento dos dados (Passo 2 - slide) Importante!!!
+    console.log(cliente)
+
+    // Passo 3 - slide (Cadastrar os dados no banco de dados)
+    try {
+        // criar um novo objeto usando a classe modelo
+        const novoCliente = new clienteModel({
+            nomeCliente: cliente.nomeCli,
+            foneCliente: cliente.foneCli,
+            emailCliente: cliente.emailCli
+        })
+
+        // a linha abaixo usa a biblioteca moongoose para salvar
+        await novoCliente.save()
+
+        //confirmação do cliente adicionado no banco
+        dialog.showMessageBox({
+            type: 'info',
+            title: "Aviso",
+            message: "Cliente adicionado com sucesso",
+            buttons: ['OK']
+        })
+        //enviar uma resposta para o renderizador resetar o formulario
+        event.reply('reset-form')
+        
+    } catch (erro) {
+        console.log(erro)
+    }
+})
