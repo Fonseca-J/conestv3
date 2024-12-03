@@ -15,7 +15,23 @@ const clienteSchema = new Schema ({
     },
     emailCliente: {
         type: String
+    },
+    cepCliente: {
+        type: String
+    },
+    logradouroCliente: {
+        type: String
+    },
+    bairroCliente: {
+        type: String
+    },
+    cidadeCliente: {
+        type: String
+    },
+    ufCliente: {
+        type: String
     }
+    
 })
 
 // Exportar para arqivo main.js

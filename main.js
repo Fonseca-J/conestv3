@@ -17,6 +17,12 @@ let dbcon = null
 // Importação do Schema Clientes da camada Model
 const clienteModel = require('./src/models/Clientes.js')
 
+// importação do Schema Fornecedores da camada model
+const fornecedorModel = require('./src/models/Fornecedores.js')
+ 
+// importação do Schema Produtos da camada model
+const produtoModel = require('./src/models/Produtos.js')
+
 // Janela Principal
 let win
 function createWindow() {
@@ -292,35 +298,124 @@ const template = [
     }
 ]
 
-// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// Recebimento dos dados do formulário
+/****************************************/
+/*************** Clientes **************/
+/**************************************/
+ 
+// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Recebimento dos dados do formulário do cliente
 ipcMain.on('new-client', async (event, cliente) => {
-    // Teste do recebimento dos dados (Passo 2 - slide) Importante!!!
+    // Teste de recebimento dos dados (Passo 2 - slide) Importante!
     console.log(cliente)
-
-    // Passo 3 - slide (Cadastrar os dados no banco de dados)
+ 
+    // Passo 3 - slide (cadastrar os dados do banco de dados)
     try {
-        // criar um novo objeto usando a classe modelo
+        // Criar um novo objeto usando a classe modelo
         const novoCliente = new clienteModel({
             nomeCliente: cliente.nomeCli,
             foneCliente: cliente.foneCli,
-            emailCliente: cliente.emailCli
+            emailCliente: cliente.emailCli,
+            cepCliente: cliente.cepCli,
+            logradouroCliente: cliente.logradouroCli,
+            bairroCliente: cliente.bairroCli,
+            cidadeCliente: cliente.cidadeCli,
+            ufCliente: cliente.ufCli
         })
-
-        // a linha abaixo usa a biblioteca moongoose para salvar
+        // A linha abaixo usa a biblioteca moongoose para salvar
         await novoCliente.save()
-
-        //confirmação do cliente adicionado no banco
+ 
+        // Confirmação  de cliente  adicionado no banco
         dialog.showMessageBox({
             type: 'info',
-            title: "Aviso",
-            message: "Cliente adicionado com sucesso",
+            title: 'Aviso',
+            message: "Cliente Adicionado com Sucesso",
             buttons: ['OK']
         })
-        //enviar uma resposta para o renderizador resetar o formulario
+        // Enviar uma resposta para o renderizador resetar o formulário
         event.reply('reset-form')
-        
-    } catch (erro) {
-        console.log(erro)
+ 
+    } catch (error) {
+        console.log(error)
     }
 })
+
+// Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ 
+/********************************************/
+/*************** Fornecedores **************/
+/******************************************/
+ 
+// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Recebimento dos dados do formulário do fornecedor
+ipcMain.on('new-supplier', async (event, fornecedor) => {
+    // Teste de recebimento dos dados (Passo 2 - slide) Importante!
+    console.log(fornecedor)
+ 
+    // Passo 3 - slide (cadastrar os dados do banco de dados)
+    try {
+        // Criar um novo objeto usando a classe modelo
+        const novoFornecedor = new fornecedorModel({
+            nomeFornecedor: fornecedor.nomeFor,
+            foneFornecedor: fornecedor.foneFor,
+            siteFornecedor: fornecedor.siteFor,
+            cepFornecedor: fornecedor.cepFor,
+            logradouroFornecedor: fornecedor.logradouroFor,
+            bairroFornecedor: fornecedor.bairroFor,
+            cidadeFornecedor: fornecedor.cidadeFor,
+            ufFornecedor: fornecedor.ufFor
+        })
+        // A linha abaixo usa a biblioteca moongoose para salvar
+        await novoFornecedor.save()
+ 
+        // Confirmação  de cliente  adicionado no banco
+        dialog.showMessageBox({
+            type: 'info',
+            title: 'Aviso',
+            message: "Fornecedor Adicionado com Sucesso",
+            buttons: ['OK']
+        })
+        // Enviar uma resposta para o renderizador resetar o formulário
+        event.reply('reset-form')
+ 
+    } catch (error) {
+        console.log(error)
+    }
+})
+// Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ 
+/********************************************/
+/*************** Produtos ******************/
+/******************************************/
+ 
+// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Recebimento dos dados do formulário do produto
+ipcMain.on('new-product', async (event, produto) => {
+    // Teste de recebimento dos dados (Passo 2 - slide) Importante!
+    console.log(produto)
+ 
+    // Passo 3 - slide (cadastrar os dados do banco de dados)
+    try {
+        // Criar um novo objeto usando a classe modelo
+        const novoProduto = new produtoModel({
+            nomeProduto: produto.nomePro,
+            barcodeProduto: produto.barcodePro,
+            precoProduto: produto.precoPro
+        })
+        // A linha abaixo usa a biblioteca moongoose para salvar
+        await novoProduto.save()
+ 
+        // Confirmação  de cliente  adicionado no banco
+        dialog.showMessageBox({
+            type: 'info',
+            title: 'Aviso',
+            message: "Produto Adicionado com Sucesso",
+            buttons: ['OK']
+        })
+        // Enviar uma resposta para o renderizador resetar o formulário
+        event.reply('reset-form')
+ 
+    } catch (error) {
+        console.log(error)
+    }
+})
+// Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
