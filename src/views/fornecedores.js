@@ -1,10 +1,9 @@
-
 /**
  * Processo de renderização
- * fornecedores.html
+ * fornecedores.js
  */
-
-// Array  - Usado nos métodos para a manipulação da estrutura do dados
+ 
+// Array usado nos métodos para manipulação da estrutura de dados
 let arrayFornecedor = []
  
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -19,7 +18,7 @@ let logradouroFornecedor = document.getElementById('inputLogradouroSupplier')
 let bairroFornecedor = document.getElementById('inputBairroSupplier')
 let cidadeFornecedor = document.getElementById('inputCidadeSupplier')
 let ufFornecedor = document.getElementById('inputUfSupplier')
-
+ 
 // Evento associado ao botão adicionar (quando o botão for pressionado)
 formFornecedor.addEventListener('submit', async (event) => {
     // Evitar o comportamento padrão de envio em um form
@@ -41,64 +40,60 @@ formFornecedor.addEventListener('submit', async (event) => {
     }
     api.novoFornecedor(fornecedor)
 })
-
-// Fim do CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-// CRUD READ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Fim do CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ 
+// CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function buscarFornecedor() {
-    // alert ('teste do botão buscar') TESTAR O BOTÃO TESTAR
-    // Passo 1 (slides)
+    // Passo 1 (slide)
     let forNome = document.getElementById('searchSupplier').value
-    console.log(forNome) // teste do passo I
-    // Passo 2 (slides) - Enviar o pedido de busca do cliente ao main
+    console.log(forNome)
+    // Passo 2 (slide) - Enviar o pedido de busca do fornecedor ao main
     api.buscarFornecedor(forNome)
-    // Passo 5 - Recebimento dos dados do Fornecedor
+    // Passo 5 - Recebimento dos dados do fornecedor
     api.renderizarFornecedor((event, dadosFornecedor) => {
-        //(teste de recebimento do dados do fornecedor)
+        // teste de recebimento dos dados do fornecedor
         console.log(dadosFornecedor)
-
-        // Passo IV: (slide) Renderização dos dados do cliente no formulário
+        // Passo 6 (slide) - Renderização dos dados dos fornecedor no formulário
         const fornecedorRenderizado = JSON.parse(dadosFornecedor)
         arrayFornecedor = fornecedorRenderizado
-        // Teste para entendimento da lógica
-        console.log(arrayCliente)
-        // percorrer o array de clientes, extarir os dados e setar (preencher) os campos do formulário
-        arrayCliente.forEach((f) => {
+        // teste para entendimento da lógica
+        console.log(arrayFornecedor)
+        // percorrer o array de fornecedor, extrair os dados e setar (preencher) os campos do formulário
+        arrayFornecedor.forEach((c) => {
             document.getElementById('inputNameSupplier').value = c.nomeFornecedor
             document.getElementById('inputPhoneSupplier').value = c.foneFornecedor
-            document.getElementById('inputEmailSupplier').value = c.emailFornecedor
+            document.getElementById('inputSiteSupplier').value = c.siteFornecedor
             document.getElementById('inputSupplier').value = c._id
         })
     })
 }
-
-// FIM DO CRUD READ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Fim do CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  
-
-
+ 
+ 
 // Função para preencher os dados de endereço automaticamente
 cepFornecedor.addEventListener('blur', async () => {
-    let cep = cepFornecedor.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+    let cep = cepFornecedor.value.replace(/\D/g, '') // Remove caracteres não numéricos
  
     if (cep.length === 8) { // Verifica se o CEP tem 8 dígitos
         try {
-            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-            const data = await response.json();
+            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+            const data = await response.json()
  
             if (data.erro) {
-                //alert("CEP não encontrado!");
+                //alert("CEP não encontrado!")
             } else {
-                logradouroFornecedor.value = data.logradouro;
-                bairroFornecedor.value = data.bairro;
-                cidadeFornecedor.value = data.localidade;
-                ufFornecedor.value = data.uf;
+                logradouroFornecedor.value = data.logradouro
+                bairroFornecedor.value = data.bairro
+                cidadeFornecedor.value = data.localidade
+                ufFornecedor.value = data.uf
             }
         } catch (error) {
-            console.log("Erro ao buscar CEP:", error);
-            //alert("Erro ao buscar o CEP.");
+            console.log("Erro ao buscar CEP:", error)
+            //alert("Erro ao buscar o CEP.")
         }
     }
-});
+})
  
 // Mapeamento de DDDs por estado ou cidade
 const dddMapping = {
@@ -139,46 +134,44 @@ const dddMapping = {
     "RS": 51, // Rio Grande do Sul
     "SC": 48, // Santa Catarina
  
-};
+}
  
 // Função para buscar o DDD com base na UF ou Cidade
 function getDDD(uf, cidade) {
     // Se a cidade específica estiver mapeada, use-a
     if (dddMapping[cidade]) {
-        return dddMapping[cidade];
+        return dddMapping[cidade]
     }
     // Caso contrário, use o DDD geral do estado (UF)
-    return dddMapping[uf] || "Desconhecido";
+    return dddMapping[uf] || "Desconhecido"
 }
  
 // Função para preencher os dados de endereço e DDD automaticamente
 cepFornecedor.addEventListener('blur', async () => {
-    let cep = cepFornecedor.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+    let cep = cepFornecedor.value.replace(/\D/g, '') // Remove caracteres não numéricos
  
     if (cep.length === 8) { // Verifica se o CEP tem 8 dígitos
         try {
-            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-            const data = await response.json();
+            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+            const data = await response.json()
  
             if (data.erro) {
-                //alert("CEP não encontrado!");
+                //alert("CEP não encontrado!")
             } else {
-                logradouroFornecedor.value = data.logradouro;
-                bairroFornecedor.value = data.bairro;
-                cidadeFornecedor.value = data.localidade;
-                ufFornecedor.value = data.uf;
+                logradouroFornecedor.value = data.logradouro
+                bairroFornecedor.value = data.bairro
+                cidadeFornecedor.value = data.localidade
+                ufFornecedor.value = data.uf
  
                 // Determina o DDD baseado na UF ou cidade
-                const ddd = getDDD(data.uf, data.localidade);
-                foneFornecedor.value = `(${ddd}) `;
+                const ddd = getDDD(data.uf, data.localidade)
+                foneFornecedor.value = `(${ddd}) `
             }
         } catch (error) {
-            console.log("Erro ao buscar CEP:", error);
+            console.log("Erro ao buscar CEP:", error)
         }
     }
-});
- 
-
+})
  
  
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -195,4 +188,3 @@ api.resetarFormulario((args) => {
  
  
 // Fim - Reset Form <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 

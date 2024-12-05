@@ -1,7 +1,10 @@
 /**
  * Processo de renderização
- * produtos.html
+ * produtos.js
  */
+ 
+// Array usado nos métodos para manipulação da estrutura de dados
+let arrayProduto = []
  
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  
@@ -30,6 +33,35 @@ formProduto.addEventListener('submit', async (event) => {
 // Fim do CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  
  
+// CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function buscarProduto() {
+    // Passo 1 (slide)
+    let proNome = document.getElementById('searchProduct').value
+    console.log(proNome)
+    // Passo 2 (slide) - Enviar o pedido de busca do produto ao main
+    api.buscarProduto(proNome)
+    // Passo 5 - Recebimento dos dados do produto
+    api.renderizarProduto((event, dadosProduto) => {
+        // teste de recebimento dos dados do produto
+        console.log(dadosProduto)
+        // Passo 6 (slide) - Renderização dos dados dos produto no formulário
+        const produtoRenderizado = JSON.parse(dadosProduto)
+        arrayProduto = produtoRenderizado
+        // teste para entendimento da lógica
+        console.log(arrayProduto)
+        // percorrer o array de produtos, extrair os dados e setar (preencher) os campos do formulário
+        arrayProduto.forEach((c) => {
+            document.getElementById('inputNameProduct').value = c.nomeProduto
+            document.getElementById('inputBarcodeProduct').value = c.barcodeProduto
+            document.getElementById('inputPriceProduct').value = c.precoProduto
+            document.getElementById('inputProduct').value = c._id
+        })
+    })
+}
+// Fim do CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ 
+ 
+ 
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 api.resetarFormulario((args) => {
     document.getElementById('inputNameProduct').value = ""
@@ -37,5 +69,4 @@ api.resetarFormulario((args) => {
     document.getElementById('inputPriceProduct').value = ""
 })
  
- 
-// Fim - Reset Form <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ // Fim - Reset Form <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

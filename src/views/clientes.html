@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://viacep.com.br;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://viacep.com.br;">
     <title>Conest - Clientes</title>
     <link rel="stylesheet" href="../public/css/bootstrap.min.css">
     <link rel="stylesheet" href="../public/css/style.css">
 </head>
-
+ 
 <body>
     <div class="container">
         <h1>Clientes</h1>
         <form id="frmClient" class="mt-2 row g-3">
+           
             <!-- Buscar Cliente -->
             <div class="col-md-6">
                 <input type="text" class="form-control" id="searchClient" maxlength="30" spellcheck="false">
@@ -23,54 +23,54 @@
                 <button class="btn btn-primary" id="btnRead" onclick="buscarCliente()">Buscar</button>
             </div>
             <hr class="mt-4 border border-primary border -1">
-
+ 
             <!-- ID do cliente -->
             <div class="col-md-6" id="idClient">
                 <input class="form-control" type="text" id="inputClient" placeholder="id">
             </div>
-
+ 
             <!-- Nome do cliente -->
             <div class="col-md-8">
                 <label for="inputNameClient" class="form-label">Nome</label>
                 <input class="form-control" type="text" id="inputNameClient" spellcheck="false" maxlength="50" required>
             </div>
-
+ 
             <!-- Telefone do cliente -->
             <div class="col-md-4">
                 <label for="inputPhoneClient" class="form-label">Telefone</label>
                 <input class="form-control" type="tel" id="inputPhoneClient" spellcheck="false" maxlength="15" required>
             </div>
-
+ 
             <!-- E-mail do cliente -->
             <div class="col-md-8">
                 <label for="inputEmailClient" class="form-label">E-mail</label>
                 <input class="form-control" type="email" id="inputEmailClient" spellcheck="false" maxlength="50">
             </div>
-
+ 
             <!-- Novo campo: CEP -->
             <div class="col-md-4">
                 <label for="inputCepClient" class="form-label">CEP</label>
                 <input class="form-control" type="text" id="inputCepClient" maxlength="9" required>
             </div>
-
+ 
             <!-- Novo campo: Logradouro -->
             <div class="col-md-8">
                 <label for="inputLogradouroClient" class="form-label">Logradouro</label>
                 <input class="form-control" type="text" id="inputLogradouroClient" required>
             </div>
-
+ 
             <!-- Novo campo: Bairro -->
             <div class="col-md-8">
                 <label for="inputBairroClient" class="form-label">Bairro</label>
                 <input class="form-control" type="text" id="inputBairroClient" required>
             </div>
-
+ 
             <!-- Novo campo: Cidade -->
             <div class="col-md-6">
                 <label for="inputCidadeClient" class="form-label">Cidade</label>
                 <input class="form-control" type="text" id="inputCidadeClient" required>
             </div>
-
+ 
             <!-- Novo campo: UF -->
             <div class="col-md-4">
                 <label for="inputUfClient" class="form-label">UF</label>
@@ -105,8 +105,8 @@
                     <option value="TO">TO</option>
                 </select>
             </div>
-
-
+ 
+ 
             <!-- Botões -->
             <div class="mt-5">
                 <button type="submit" class="btn btn-success" id="btnCreate">Adicionar</button>
@@ -114,12 +114,12 @@
                 <button type="submit" class="btn btn-danger" id="btnDelete">Excluir</button>
                 <button type="reset" class="btn" id="btnReset"></button>
             </div>
-
+ 
         </form>
     </div>
     <script src="../public/js/bootstrap.min.js"></script>
     <script src="clientes.js"></script>
 
 </body>
-
+ 
 </html>
