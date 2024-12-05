@@ -3,6 +3,9 @@
  * clientes.html
  */
 
+// Array  - Usado nos métodos para a manipulação da estrutura do dados
+let arrayCliente = []
+
 // CROUD CREATE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // Passo 1 - Slide (capturar os dados dos inputs do form)
@@ -42,6 +45,36 @@ formCliente.addEventListener('submit', async (event) => {
 
 // Fimm do Crud create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+// CRUD READ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function buscarCliente() {
+    // alert ('teste do botão buscar') TESTAR O BOTÃO TESTAR
+    // Passo 1 (slides)
+    let cliNome = document.getElementById('searchClient').value
+    console.log(cliNome) // teste do passo I
+    // Passo 2 (slides) - Enviar o pedido de busca do cliente ao main
+    api.buscarCliente(cliNome)
+    // Passo 5 - Recebimento dos dados do Cliente
+    api.renderizarCliente((event, dadosCliente) => {
+        //(teste de recebimento do dados do cliente)
+        console.log(dadosCliente)
+
+        // Passo IV: (slide) Renderização dos dados do cliente no formulário
+        const clienteRenderizado = JSON.parse(dadosCliente)
+        arrayCliente = clienteRenderizado
+        // Teste para entendimento da lógica
+        console.log(arrayCliente)
+        // percorrer o array de clientes, extarir os dados e setar (preencher) os campos do formulário
+        arrayCliente.forEach((c) => {
+            document.getElementById('inputNameClient').value = c.nomeCliente
+            document.getElementById('inputPhoneClient').value = c.foneCliente
+            document.getElementById('inputEmailClient').value = c.emailCliente
+            document.getElementById('inputClient').value = c._id
+        })
+    })
+}
+
+// FIM DO CRUD READ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 // Função para preencher os dados de endereço automaticamente
 cepCliente.addEventListener('blur', async () => {
     let cep = cepCliente.value.replace(/\D/g, ''); // Remove caracteres não numéricos
@@ -76,7 +109,7 @@ const dddMapping = {
     "RO": 69, // Rondônia
     "RR": 95, // Roraima
     "TO": 63, // Tocantins
- 
+
     // Região Nordeste
     "AL": 82, // Alagoas
     "BA": 71, // Bahia
@@ -87,26 +120,26 @@ const dddMapping = {
     "PI": 86, // Piauí
     "RN": 84, // Rio Grande do Norte
     "SE": 79, // Sergipe
- 
+
     // Região Centro-Oeste
     "DF": 61, // Distrito Federal
     "GO": 62, // Goiás
     "MT": 65, // Mato Grosso
     "MS": 67, // Mato Grosso do Sul
- 
+
     // Região Sudeste
     "ES": 27, // Espírito Santo
     "MG": 31, // Minas Gerais
     "RJ": 21, // Rio de Janeiro
     "SP": 11, // São Paulo
- 
+
     // Região Sul
     "PR": 41, // Paraná
     "RS": 51, // Rio Grande do Sul
     "SC": 48, // Santa Catarina
- 
+
 }
- 
+
 // Função para buscar o DDD com base na UF ou Cidade
 function getDDD(uf, cidade) {
     // Se a cidade específica estiver mapeada, use-a
@@ -116,31 +149,31 @@ function getDDD(uf, cidade) {
     // Caso contrário, use o DDD geral do estado (UF)
     return dddMapping[uf] || "Desconhecido";
 }
- 
+
 // Função para preencher os dados de endereço e DDD automaticamente
 cepCliente.addEventListener('blur', async () => {
     let cep = cepCliente.value.replace(/\D/g, ''); // Remove caracteres não numéricos
- 
+
     if (cep.length === 8) { // Verifica se o CEP tem 8 dígitos
         try {
             const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
             const data = await response.json();
- 
+
             if (data.erro) {
-               // alert("CEP não encontrado!");
+                // alert("CEP não encontrado!");
             } else {
                 logradouroCliente.value = data.logradouro;
                 bairroCliente.value = data.bairro;
                 cidadeCliente.value = data.localidade;
                 ufCliente.value = data.uf;
- 
+
                 // Determina o DDD baseado na UF ou cidade
                 const ddd = getDDD(data.uf, data.localidade);
                 foneCliente.value = `(${ddd}) `;
             }
         } catch (error) {
             console.log("Erro ao buscar CEP:", error);
-            // alert("Erro ao buscar o CEP.");
+
         }
     }
 })

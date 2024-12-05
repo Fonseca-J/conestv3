@@ -2,7 +2,7 @@
 // nativeTheme (forçar um tema no sistema operacional)
 // Menu (criar um menu personalizado)
 // shell (acessar links externos)
-const { app, BrowserWindow, nativeTheme, Menu, shell, ipcMain, dialog} = require('electron/main')
+const { app, BrowserWindow, nativeTheme, Menu, shell, ipcMain, dialog } = require('electron/main')
 const path = require('node:path')
 
 
@@ -19,9 +19,10 @@ const clienteModel = require('./src/models/Clientes.js')
 
 // importação do Schema Fornecedores da camada model
 const fornecedorModel = require('./src/models/Fornecedores.js')
- 
+
 // importação do Schema Produtos da camada model
 const produtoModel = require('./src/models/Produtos.js')
+const { console } = require('node:inspector')
 
 // Janela Principal
 let win
@@ -37,7 +38,7 @@ function createWindow() {
 
     // Menu personalizado (comentar para debugar)
     // Menu.setApplicationMenu(Menu.buildFromTemplate(template))
-    
+
     win.loadFile('./src/views/index.html')
 
     // botões 
@@ -59,14 +60,14 @@ function createWindow() {
 }
 
 // Janela Sobre
-function aboutWindow () {
+function aboutWindow() {
     nativeTheme.themeSource = "light"
     // A linha abaixo obtem a janela principal
     const main = BrowserWindow.getFocusedWindow()
     let about
     // Validar a janela pai
     if (main) {
-        about = new BrowserWindow ({
+        about = new BrowserWindow({
             width: 320,
             height: 160,
             autoHideMenuBar: true, // Esconder o menu
@@ -78,9 +79,9 @@ function aboutWindow () {
             webPreferences: {
                 preload: path.join(__dirname, 'preload.js')
             }
-         })
+        })
     }
-    
+
     about.loadFile('./src/views/sobre.html')
 
     // Fechar a janela quando receber mensagem do processo de renderização.
@@ -96,14 +97,14 @@ function aboutWindow () {
 
 
 // Janela Clientes
-function clientWindow () {
+function clientWindow() {
     nativeTheme.themeSource = "light"
     // A linha abaixo obtem a janela principal
     const main = BrowserWindow.getFocusedWindow()
     let client
     // Validar a janela pai
     if (main) {
-        client = new BrowserWindow ({
+        client = new BrowserWindow({
             width: 800,
             height: 600,
             // autoHideMenuBar: true, // Esconder o menu
@@ -112,22 +113,22 @@ function clientWindow () {
             webPreferences: {
                 preload: path.join(__dirname, 'preload.js')
             }
-         })
+        })
     }
-    
+
     client.loadFile('./src/views/clientes.html')
 
-    }
+}
 
 // Janela Fornecedores
-function supplierWindow () {
+function supplierWindow() {
     nativeTheme.themeSource = "light"
     // A linha abaixo obtem a janela principal
     const main = BrowserWindow.getFocusedWindow()
     let supplier
     // Validar a janela pai
     if (main) {
-        supplier = new BrowserWindow ({
+        supplier = new BrowserWindow({
             width: 800,
             height: 600,
             autoHideMenuBar: true, // Esconder o menu
@@ -136,22 +137,22 @@ function supplierWindow () {
             webPreferences: {
                 preload: path.join(__dirname, 'preload.js')
             }
-         })
+        })
     }
-    
+
     supplier.loadFile('./src/views/fornecedores.html')
 
-    }  
-    
-    // Janela Produtos
-function productWindow () {
+}
+
+// Janela Produtos
+function productWindow() {
     nativeTheme.themeSource = "light"
     // A linha abaixo obtem a janela principal
     const main = BrowserWindow.getFocusedWindow()
     let product
     // Validar a janela pai
     if (main) {
-        product = new BrowserWindow ({
+        product = new BrowserWindow({
             width: 800,
             height: 600,
             autoHideMenuBar: true, // Esconder o menu
@@ -160,22 +161,22 @@ function productWindow () {
             webPreferences: {
                 preload: path.join(__dirname, 'preload.js')
             }
-         })
+        })
     }
-    
+
     product.loadFile('./src/views/produtos.html')
 
-    }
+}
 
-    // Janela Relatórios
-function reportWindow () {
+// Janela Relatórios
+function reportWindow() {
     nativeTheme.themeSource = "light"
     // A linha abaixo obtem a janela principal
     const main = BrowserWindow.getFocusedWindow()
     let report
     // Validar a janela pai
     if (main) {
-        report = new BrowserWindow ({
+        report = new BrowserWindow({
             width: 800,
             height: 600,
             autoHideMenuBar: true, // Esconder o menu
@@ -184,12 +185,12 @@ function reportWindow () {
             webPreferences: {
                 preload: path.join(__dirname, 'preload.js')
             }
-         })
+        })
     }
-    
+
     report.loadFile('./src/views/relatorios.html')
 
-    }
+}
 
 
 // Execução assíncrona do aplicativo electron
@@ -200,7 +201,7 @@ app.whenReady().then(() => {
     // Importar o módulo de conexão no início do código
 
     // Conexão com o banco
-    ipcMain.on('db-connect', async(event, message) => {
+    ipcMain.on('db-connect', async (event, message) => {
         // A linha abaixo estabelece a conexão com o banco
         dbcon = await dbConnect()
         // enviar ao redenrizador uma mensagem para trocar o icone do status do banco de dados
@@ -266,17 +267,17 @@ const template = [
         label: 'Zoom',
         submenu: [
             {
-                label:'Aplicar zoom',
+                label: 'Aplicar zoom',
                 role: 'zoomIn'
             },
 
             {
-                label:'Reduzir',
+                label: 'Reduzir',
                 role: 'zoomOut'
             },
 
             {
-                label:'Restaurar o zoom padrão',
+                label: 'Restaurar o zoom padrão',
                 role: 'resetZoom'
             },
         ]
@@ -292,7 +293,7 @@ const template = [
 
             {
                 label: 'Sobre',
-                click: () => aboutWindow() 
+                click: () => aboutWindow()
             }
         ]
     }
@@ -301,13 +302,13 @@ const template = [
 /****************************************/
 /*************** Clientes **************/
 /**************************************/
- 
+
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // Recebimento dos dados do formulário do cliente
 ipcMain.on('new-client', async (event, cliente) => {
     // Teste de recebimento dos dados (Passo 2 - slide) Importante!
     console.log(cliente)
- 
+
     // Passo 3 - slide (cadastrar os dados do banco de dados)
     try {
         // Criar um novo objeto usando a classe modelo
@@ -323,7 +324,7 @@ ipcMain.on('new-client', async (event, cliente) => {
         })
         // A linha abaixo usa a biblioteca moongoose para salvar
         await novoCliente.save()
- 
+
         // Confirmação  de cliente  adicionado no banco
         dialog.showMessageBox({
             type: 'info',
@@ -333,24 +334,49 @@ ipcMain.on('new-client', async (event, cliente) => {
         })
         // Enviar uma resposta para o renderizador resetar o formulário
         event.reply('reset-form')
- 
+
     } catch (error) {
         console.log(error)
     }
 })
 
 // Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
+
+// CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('search-client', async (event, cliNome) => {
+    // teste de recebimento do nome do cliente a ser pesquisado (passo II)
+    console.log(cliNome)
+    // Passos III, IV - Pesquisar no banco de dados o cliente pelo nome.
+    // Find() => Buscar no banco de dados (mogoose)
+    // RegExp(cliNome, 'i') -> Filtro pelo nome do cliente 'i' insensitive (maiúsculo ou minúsculo)
+    // Atenção: nomeCliente - > model | cliNome -> renderizador
+    try {
+        const dadosCliente = await clienteModel.find({
+            nomeCliente: new RegExp(cliNome, 'i')
+        })
+        console.log(dadosCliente) // Teste do passo III e IV.
+        // Passo V (slide) -> Enviar os dados do cliente para o renderizador (JSON.strngfy converte para JSON)
+        event.reply('client-data', JSON.stringify(dadosCliente))
+
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
+
+// Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 /********************************************/
 /*************** Fornecedores **************/
 /******************************************/
- 
+
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // Recebimento dos dados do formulário do fornecedor
 ipcMain.on('new-supplier', async (event, fornecedor) => {
     // Teste de recebimento dos dados (Passo 2 - slide) Importante!
     console.log(fornecedor)
- 
+
     // Passo 3 - slide (cadastrar os dados do banco de dados)
     try {
         // Criar um novo objeto usando a classe modelo
@@ -366,7 +392,7 @@ ipcMain.on('new-supplier', async (event, fornecedor) => {
         })
         // A linha abaixo usa a biblioteca moongoose para salvar
         await novoFornecedor.save()
- 
+
         // Confirmação  de cliente  adicionado no banco
         dialog.showMessageBox({
             type: 'info',
@@ -376,23 +402,48 @@ ipcMain.on('new-supplier', async (event, fornecedor) => {
         })
         // Enviar uma resposta para o renderizador resetar o formulário
         event.reply('reset-form')
- 
+
     } catch (error) {
         console.log(error)
     }
 })
 // Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
+
+// CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('search-supplier', async (event, forNome) => {
+    // teste de recebimento do nome do cliente a ser pesquisado (passo II)
+    console.log(forNome)
+    // Passos III, IV - Pesquisar no banco de dados o cliente pelo nome.
+    // Find() => Buscar no banco de dados (mogoose)
+    // RegExp(cliNome, 'i') -> Filtro pelo nome do cliente 'i' insensitive (maiúsculo ou minúsculo)
+    // Atenção: nomeCliente - > model | cliNome -> renderizador
+    try {
+        const dadosFornecedor = await fornecedorModelModel.find({
+            nomeFornecedor: new RegExp(forNome, 'i')
+        })
+        console.log(dadosFornecedor) // Teste do passo III e IV.
+        // Passo V (slide) -> Enviar os dados do cliente para o renderizador (JSON.strngfy converte para JSON)
+        event.reply('supplier-data', JSON.stringify(dadosFornecedor))
+
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+
+
+// Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 /********************************************/
 /*************** Produtos ******************/
 /******************************************/
- 
+
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // Recebimento dos dados do formulário do produto
 ipcMain.on('new-product', async (event, produto) => {
     // Teste de recebimento dos dados (Passo 2 - slide) Importante!
     console.log(produto)
- 
+
     // Passo 3 - slide (cadastrar os dados do banco de dados)
     try {
         // Criar um novo objeto usando a classe modelo
@@ -403,7 +454,7 @@ ipcMain.on('new-product', async (event, produto) => {
         })
         // A linha abaixo usa a biblioteca moongoose para salvar
         await novoProduto.save()
- 
+
         // Confirmação  de cliente  adicionado no banco
         dialog.showMessageBox({
             type: 'info',
@@ -413,7 +464,7 @@ ipcMain.on('new-product', async (event, produto) => {
         })
         // Enviar uma resposta para o renderizador resetar o formulário
         event.reply('reset-form')
- 
+
     } catch (error) {
         console.log(error)
     }

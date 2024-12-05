@@ -3,6 +3,9 @@
  * Processo de renderização
  * fornecedores.html
  */
+
+// Array  - Usado nos métodos para a manipulação da estrutura do dados
+let arrayFornecedor = []
  
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  
@@ -16,7 +19,63 @@ let logradouroFornecedor = document.getElementById('inputLogradouroSupplier')
 let bairroFornecedor = document.getElementById('inputBairroSupplier')
 let cidadeFornecedor = document.getElementById('inputCidadeSupplier')
 let ufFornecedor = document.getElementById('inputUfSupplier')
+
+// Evento associado ao botão adicionar (quando o botão for pressionado)
+formFornecedor.addEventListener('submit', async (event) => {
+    // Evitar o comportamento padrão de envio em um form
+    event.preventDefault()
+    // Teste importante! (fluxo dos dados)
+    // console.log(nomeCliente.value, foneCliente.value, emailCliente.value)
  
+    // Passo 2 - slide (envio das informações para o main)
+    // Criar um objeto
+    const fornecedor = {
+        nomeFor: nomeFornecedor.value,
+        foneFor: foneFornecedor.value,
+        siteFor: siteFornecedor.value,
+        cepFor: cepFornecedor.value,
+        logradouroFor: logradouroFornecedor.value,
+        bairroFor: bairroFornecedor.value,
+        cidadeFor: cidadeFornecedor.value,
+        ufFor: ufFornecedor.value
+    }
+    api.novoFornecedor(fornecedor)
+})
+
+// Fim do CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+// CRUD READ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function buscarFornecedor() {
+    // alert ('teste do botão buscar') TESTAR O BOTÃO TESTAR
+    // Passo 1 (slides)
+    let forNome = document.getElementById('searchSupplier').value
+    console.log(forNome) // teste do passo I
+    // Passo 2 (slides) - Enviar o pedido de busca do cliente ao main
+    api.buscarFornecedor(forNome)
+    // Passo 5 - Recebimento dos dados do Fornecedor
+    api.renderizarFornecedor((event, dadosFornecedor) => {
+        //(teste de recebimento do dados do fornecedor)
+        console.log(dadosFornecedor)
+
+        // Passo IV: (slide) Renderização dos dados do cliente no formulário
+        const fornecedorRenderizado = JSON.parse(dadosFornecedor)
+        arrayFornecedor = fornecedorRenderizado
+        // Teste para entendimento da lógica
+        console.log(arrayCliente)
+        // percorrer o array de clientes, extarir os dados e setar (preencher) os campos do formulário
+        arrayCliente.forEach((f) => {
+            document.getElementById('inputNameSupplier').value = c.nomeFornecedor
+            document.getElementById('inputPhoneSupplier').value = c.foneFornecedor
+            document.getElementById('inputEmailSupplier').value = c.emailFornecedor
+            document.getElementById('inputSupplier').value = c._id
+        })
+    })
+}
+
+// FIM DO CRUD READ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ 
+
+
 // Função para preencher os dados de endereço automaticamente
 cepFornecedor.addEventListener('blur', async () => {
     let cep = cepFornecedor.value.replace(/\D/g, ''); // Remove caracteres não numéricos
@@ -119,30 +178,7 @@ cepFornecedor.addEventListener('blur', async () => {
     }
 });
  
-// Evento associado ao botão adicionar (quando o botão for pressionado)
-formFornecedor.addEventListener('submit', async (event) => {
-    // Evitar o comportamento padrão de envio em um form
-    event.preventDefault()
-    // Teste importante! (fluxo dos dados)
-    // console.log(nomeCliente.value, foneCliente.value, emailCliente.value)
- 
-    // Passo 2 - slide (envio das informações para o main)
-    // Criar um objeto
-    const fornecedor = {
-        nomeFor: nomeFornecedor.value,
-        foneFor: foneFornecedor.value,
-        siteFor: siteFornecedor.value,
-        cepFor: cepFornecedor.value,
-        logradouroFor: logradouroFornecedor.value,
-        bairroFor: bairroFornecedor.value,
-        cidadeFor: cidadeFornecedor.value,
-        ufFor: ufFornecedor.value
-    }
-    api.novoFornecedor(fornecedor)
-})
-// Fim do CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
- 
+
  
  
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
