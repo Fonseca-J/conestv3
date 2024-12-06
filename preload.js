@@ -1,12 +1,12 @@
 /**
  * Segurança e Desempenho
  */
-
-const { contextBridge, ipcRenderer } = require('electron')
-
+ 
+const { contextBridge, ipcRenderer} = require('electron')
+ 
 // Estabelecer a conexão com o banco (pedido para o main abrir a conexão com o banco de dados)
 ipcRenderer.send('db-connect')
-
+ 
 contextBridge.exposeInMainWorld('api', {
     dbMensagem: (message) => ipcRenderer.on('db-message', message),
     fecharJanela: () => ipcRenderer.send('close-about'),
@@ -23,5 +23,7 @@ contextBridge.exposeInMainWorld('api', {
     buscarFornecedor: (forNome) => ipcRenderer.send('search-supplier', forNome),
     renderizarFornecedor: (dadosFornecedor) => ipcRenderer.on('data-supplier', dadosFornecedor),
     buscarProduto: (proNome) => ipcRenderer.send('search-product', proNome),
-    renderizarProduto: (dadosProduto) => ipcRenderer.on('data-product', dadosProduto)
+    renderizarProduto: (dadosProduto) => ipcRenderer.on('data-product', dadosProduto),
+    buscarProdutoPorBarcode: (barCode) => ipcRenderer.send('search-barcode', barCode),
+    renderizarBarcode: (dadosBarcode) => ipcRenderer.on('data-barcode', dadosBarcode)
 })
