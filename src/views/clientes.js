@@ -2,14 +2,15 @@
  * Processo de renderização
  * clientes.js
  */
- 
+
 // Array usado nos métodos para manipulação da estrutura de dados
 let arrayCliente = []
- 
-// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- 
+
+// CRUD Create/Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 // Passo 1 - slide (capturar os dados dos inputs do form)
 let formCliente = document.getElementById('frmClient')
+let idCliente = document.getElementById('inputIdClient')
 let nomeCliente = document.getElementById('inputNameClient')
 let foneCliente = document.getElementById('inputPhoneClient')
 let emailCliente = document.getElementById('inputEmailClient')
@@ -19,33 +20,52 @@ let numeroCliente = document.getElementById('inputNumeroClient')
 let bairroCliente = document.getElementById('inputBairroClient')
 let cidadeCliente = document.getElementById('inputCidadeClient')
 let ufCliente = document.getElementById('inputUfClient')
- 
- 
+
+
 // Evento associado ao botão adicionar (quando o botão for pressionado)
 formCliente.addEventListener('submit', async (event) => {
     // Evitar o comportamento padrão de envio em um form
     event.preventDefault()
     // Teste importante! (fluxo dos dados)
     // console.log(nomeCliente.value, foneCliente.value, emailCliente.value)
- 
-    // Passo 2 - slide (envio das informações para o main)
-    // Criar um objeto
-    const cliente = {
-        nomeCli: nomeCliente.value,
-        foneCli: foneCliente.value,
-        emailCli: emailCliente.value,
-        cepCli: cepCliente.value,
-        logradouroCli: logradouroCliente.value,
-        numeroCli: numeroCliente.value,
-        bairroCli: bairroCliente.value,
-        cidadeCli: cidadeCliente.value,
-        ufCli: ufCliente.value
+
+    //Passo 2 - slide (envio das informações para o main)
+    //Estratégia para determinar se é um novo cadastro de cliente ou a edição de um cliente já existente
+    if (idCliente.value === "") {
+
+        const cliente = {
+            nomeCli: nomeCliente.value,
+            foneCli: foneCliente.value,
+            emailCli: emailCliente.value,
+            cepCli: cepCliente.value,
+            logradouroCli: logradouroCliente.value,
+            numeroCli: numeroCliente.value,
+            bairroCli: bairroCliente.value,
+            cidadeCli: cidadeCliente.value,
+            ufCli: ufCliente.value
+        }
+        api.novoCliente(cliente)
+    } else {
+        // criar um novo objedo com a ID do cliente
+        const cliente = {
+            idCli: idCliente.value,
+            nomeCli: nomeCliente.value,
+            foneCli: foneCliente.value,
+            emailCli: emailCliente.value,
+            cepCli: cepCliente.value,
+            logradouroCli: logradouroCliente.value,
+            numeroCli: numeroCliente.value,
+            bairroCli: bairroCliente.value,
+            cidadeCli: cidadeCliente.value,
+            ufCli: ufCliente.value
+        }
+        api.editarCliente(cliente)
+
     }
-    api.novoCliente(cliente)
 })
 // Fim do CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
- 
+
+
 // CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function buscarCliente() {
     // Passo 1 (slide)
@@ -73,23 +93,45 @@ function buscarCliente() {
             document.getElementById('inputBairroClient').value = c.bairroCliente
             document.getElementById('inputCidadeClient').value = c.cidadeCliente
             document.getElementById('inputUfClient').value = c.ufCliente
-            document.getElementById('inputClient').value = c._id
+            document.getElementById('inputIdClient').value = c._id
         })
     })
 }
 // Fim do CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
- 
- 
+
+// CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function excluirCliente() {
+    api.deletarCliente(idCliente.value) // Passo 1 do slide
+}
+// Fim do CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+// Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+api.resetarFormulario((args) => {
+    console.log("teste de recebimento do main - pedido para resetar o form")
+    document.getElementById('inputNameClient').value = ""
+    document.getElementById('inputPhoneClient').value = ""
+    document.getElementById('inputEmailClient').value = ""
+    document.getElementById('inputCepClient').value = ""
+    document.getElementById('inputLogradouroClient').value = ""
+    document.getElementById('inputNumeroClient').value = ""
+    document.getElementById('inputBairroClient').value = ""
+    document.getElementById('inputCidadeClient').value = ""
+    document.getElementById('inputUfClient').value = ""
+
+})
+// Fim - Reset form <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
 // Função para preencher os dados de endereço automaticamente
 cepCliente.addEventListener('blur', async () => {
     let cep = cepCliente.value.replace(/\D/g, '') // Remove caracteres não numéricos
- 
+
     if (cep.length === 8) { // Verifica se o CEP tem 8 dígitos
         try {
             const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
             const data = await response.json()
- 
+
             if (data.erro) {
                 console.log("CEP não encontrado!")
             } else {
@@ -103,7 +145,7 @@ cepCliente.addEventListener('blur', async () => {
         }
     }
 })
- 
+
 // Mapeamento de DDDs por estado ou cidade
 const dddMapping = {
     // Região Norte
@@ -114,7 +156,7 @@ const dddMapping = {
     "RO": 69, // Rondônia
     "RR": 95, // Roraima
     "TO": 63, // Tocantins
- 
+
     // Região Nordeste
     "AL": 82, // Alagoas
     "BA": 71, // Bahia
@@ -125,26 +167,26 @@ const dddMapping = {
     "PI": 86, // Piauí
     "RN": 84, // Rio Grande do Norte
     "SE": 79, // Sergipe
- 
+
     // Região Centro-Oeste
     "DF": 61, // Distrito Federal
     "GO": 62, // Goiás
     "MT": 65, // Mato Grosso
     "MS": 67, // Mato Grosso do Sul
- 
+
     // Região Sudeste
     "ES": 27, // Espírito Santo
     "MG": 31, // Minas Gerais
     "RJ": 21, // Rio de Janeiro
     "SP": 11, // São Paulo
- 
+
     // Região Sul
     "PR": 41, // Paraná
     "RS": 51, // Rio Grande do Sul
     "SC": 48, // Santa Catarina
- 
+
 }
- 
+
 // Função para buscar o DDD com base na UF ou Cidade
 function getDDD(uf, cidade) {
     // Se a cidade específica estiver mapeada, use-a
@@ -154,16 +196,16 @@ function getDDD(uf, cidade) {
     // Caso contrário, use o DDD geral do estado (UF)
     return dddMapping[uf] || "Desconhecido"
 }
- 
+
 // Função para preencher os dados de endereço e DDD automaticamente
 cepCliente.addEventListener('blur', async () => {
     let cep = cepCliente.value.replace(/\D/g, '') // Remove caracteres não numéricos
- 
+
     if (cep.length === 8) { // Verifica se o CEP tem 8 dígitos
         try {
             const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
             const data = await response.json()
- 
+
             if (data.erro) {
                 console.log("CEP não encontrado!")
             } else {
@@ -171,7 +213,7 @@ cepCliente.addEventListener('blur', async () => {
                 bairroCliente.value = data.bairro
                 cidadeCliente.value = data.localidade
                 ufCliente.value = data.uf
- 
+
                 // Determina o DDD baseado na UF ou cidade
                 const ddd = getDDD(data.uf, data.localidade)
                 foneCliente.value = `(${ddd}) `
@@ -181,8 +223,8 @@ cepCliente.addEventListener('blur', async () => {
         }
     }
 })
- 
- 
+
+
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 api.resetarFormulario((args) => {
     document.getElementById('inputNameClient').value = ""
