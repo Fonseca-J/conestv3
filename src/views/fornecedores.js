@@ -3,13 +3,38 @@
  * fornecedores.js
  */
  
+const foco = document.getElementById('searchSupplier')
+ 
+//Mudar as propriedades do documento html ao iniciar a janela
+document.addEventListener('DOMContentLoaded', () => {
+    btnCreate.disabled = true
+    btnUpdate.disabled = true
+    btnDelete.disabled = true
+    foco.focus()
+})  
+ 
+// Função para manipular o evento da tecla Enter
+function teclaEnter(event) {
+    if (event.key === "Enter") {
+        event.preventDefault()
+        buscarFornecedor()
+    }
+}
+ 
+// Função para remover o manipulador do evento da tecla Enter
+function restaurarEnter() {
+    document.getElementById('frmSupplier').removeEventListener('keydown', teclaEnter)
+}
+ 
+// manipulando o evento (tecla Enter)
+document.getElementById('frmSupplier').addEventListener('keydown', teclaEnter)
+ 
 // Array usado nos métodos para manipulação da estrutura de dados
 let arrayFornecedor = []
  
-// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- 
 // Passo 1 - slide (capturar os dados dos inputs do form)
 let formFornecedor = document.getElementById('frmSupplier')
+let idFornecedor = document.getElementById('inputIdSupplier')
 let nomeFornecedor = document.getElementById('inputNameSupplier')
 let foneFornecedor = document.getElementById('inputPhoneSupplier')
 let siteFornecedor = document.getElementById('inputSiteSupplier')
@@ -20,64 +45,119 @@ let bairroFornecedor = document.getElementById('inputBairroSupplier')
 let cidadeFornecedor = document.getElementById('inputCidadeSupplier')
 let ufFornecedor = document.getElementById('inputUfSupplier')
  
+// CRUD Create/Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // Evento associado ao botão adicionar (quando o botão for pressionado)
 formFornecedor.addEventListener('submit', async (event) => {
     // Evitar o comportamento padrão de envio em um form
     event.preventDefault()
     // Teste importante! (fluxo dos dados)
-    // console.log(nomeCliente.value, foneCliente.value, emailCliente.value)
+    // console.log(nomeFornecedor.value, foneForncedor.value, emailFornecedor.value)
  
     // Passo 2 - slide (envio das informações para o main)
-    // Criar um objeto
-    const fornecedor = {
-        nomeFor: nomeFornecedor.value,
-        foneFor: foneFornecedor.value,
-        siteFor: siteFornecedor.value,
-        cepFor: cepFornecedor.value,
-        logradouroFor: logradouroFornecedor.value,
-        numeroFor: numeroFornecedor.value,
-        bairroFor: bairroFornecedor.value,
-        cidadeFor: cidadeFornecedor.value,
-        ufFor: ufFornecedor.value
+    // Estratégia para determinar se é um novo cadastro de fornecedor ou a edição de um fornecedor já existente
+    if (idFornecedor.value === "") {
+        // Criar um objeto
+        const fornecedor = {
+            nomeFor: nomeFornecedor.value,
+            foneFor: foneFornecedor.value,
+            siteFor: siteFornecedor.value,
+            cepFor: cepFornecedor.value,
+            logradouroFor: logradouroFornecedor.value,
+            numeroFor: numeroFornecedor.value,
+            bairroFor: bairroFornecedor.value,
+            cidadeFor: cidadeFornecedor.value,
+            ufFor: ufFornecedor.value
+        }
+        api.novoFornecedor(fornecedor)
+    } else {
+        // Criar um objeto
+        const fornecedor = {
+            idFor: idFornecedor.value,
+            nomeFor: nomeFornecedor.value,
+            foneFor: foneFornecedor.value,
+            siteFor: siteFornecedor.value,
+            cepFor: cepFornecedor.value,
+            logradouroFor: logradouroFornecedor.value,
+            numeroFor: numeroFornecedor.value,
+            bairroFor: bairroFornecedor.value,
+            cidadeFor: cidadeFornecedor.value,
+            ufFor: ufFornecedor.value
+        }
+        api.editarFornecedor(fornecedor)
     }
-    api.novoFornecedor(fornecedor)
 })
-// Fim do CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ 
+ 
+// Fim do CRUD Create/Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  
 // CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function buscarFornecedor() {
     // Passo 1 (slide)
     let forNome = document.getElementById('searchSupplier').value
-    console.log(forNome)
-    // Passo 2 (slide) - Enviar o pedido de busca do fornecedor ao main
-    api.buscarFornecedor(forNome)
-    // Passo 5 - Recebimento dos dados do fornecedor
-    api.renderizarFornecedor((event, dadosFornecedor) => {
-        // teste de recebimento dos dados do fornecedor
-        console.log(dadosFornecedor)
-        // Passo 6 (slide) - Renderização dos dados dos fornecedor no formulário
-        const fornecedorRenderizado = JSON.parse(dadosFornecedor)
-        arrayFornecedor = fornecedorRenderizado
-        // teste para entendimento da lógica
-        console.log(arrayFornecedor)
-        // percorrer o array de fornecedor, extrair os dados e setar (preencher) os campos do formulário
-        arrayFornecedor.forEach((c) => {
-            document.getElementById('inputNameSupplier').value = c.nomeFornecedor
-            document.getElementById('inputPhoneSupplier').value = c.foneFornecedor
-            document.getElementById('inputSiteSupplier').value = c.siteFornecedor
-            document.getElementById('inputCepSupplier').value = c.cepFornecedor
-            document.getElementById('inputLogradouroSupplier').value = c.logradouroFornecedor
-            document.getElementById('inputNumeroSupplier').value = c.numeroFornecedor
-            document.getElementById('inputBairroSupplier').value = c.bairroFornecedor
-            document.getElementById('inputCidadeSupplier').value = c.cidadeFornecedor
-            document.getElementById('inputUfSupplier').value = c.ufFornecedor
-            document.getElementById('inputSupplier').value = c._id
+    //validação
+    if (forNome === "") {
+        api.validarBusca() //validação do campo obrigatório
+        foco.focus()
+    } else {
+        //console.log(forNome) // teste do passo 1
+        console.log(forNome)
+        // Passo 2 (slide) - Enviar o pedido de busca do fornecedor ao main
+        api.buscarFornecedor(forNome)
+        // Passo 5 - Recebimento dos dados do fornecedor
+        api.renderizarFornecedor((event, dadosFornecedor) => {
+            // teste de recebimento dos dados do fornecedor
+            console.log(dadosFornecedor)
+            // Passo 6 (slide) - Renderização dos dados dos fornecedor no formulário
+            const fornecedorRenderizado = JSON.parse(dadosFornecedor)
+            arrayFornecedor = fornecedorRenderizado
+            // teste para entendimento da lógica
+            console.log(arrayFornecedor)
+            // percorrer o array de fornecedor, extrair os dados e setar (preencher) os campos do formulário
+            arrayFornecedor.forEach((c) => {
+                document.getElementById('inputNameSupplier').value = c.nomeFornecedor
+                document.getElementById('inputPhoneSupplier').value = c.foneFornecedor
+                document.getElementById('inputSiteSupplier').value = c.siteFornecedor
+                document.getElementById('inputCepSupplier').value = c.cepFornecedor
+                document.getElementById('inputLogradouroSupplier').value = c.logradouroFornecedor
+                document.getElementById('inputNumeroSupplier').value = c.numeroFornecedor
+                document.getElementById('inputBairroSupplier').value = c.bairroFornecedor
+                document.getElementById('inputCidadeSupplier').value = c.cidadeFornecedor
+                document.getElementById('inputUfSupplier').value = c.ufFornecedor
+                document.getElementById('inputIdSupplier').value = c._id
+                //limpar o campo de busca e remover o foco
+                foco.value = ""
+                foco.blur()
+                //liberar os botões editar e excluir
+                document.getElementById('btnUpdate').disabled = false
+                document.getElementById('btnDelete').disabled = false
+                //restaurar o padrão da tecla Enter
+                restaurarEnter()
+            })
         })
+    }
+    //setar o nome do fornecedor e liberar o botão adicionar
+    api.setarNomeFornecedor(() => {
+        //setar o nome do fornecedor      
+        let campoNome = document.getElementById('searchSupplier').value
+        document.getElementById('inputNameSupplier').focus()
+        document.getElementById('inputNameSupplier').value = campoNome
+        //limpar o campo de busca e remover o foco
+        foco.value = ""
+        foco.blur()
+        //liberar o botão adicionar
+        btnCreate.disabled = false
+        //restaurar o padrão da tecla Enter
+        restaurarEnter()
     })
 }
 // Fim do CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  
  
+// CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function excluirFornecedor() {
+    api.deletarFornecedor(idFornecedor.value) // Passo 1 do slide
+}
+// Fim do CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  
 // Função para preencher os dados de endereço automaticamente
 cepFornecedor.addEventListener('blur', async () => {
@@ -184,16 +264,11 @@ cepFornecedor.addEventListener('blur', async () => {
  
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 api.resetarFormulario((args) => {
-    document.getElementById('inputNameSupplier').value = ""
-    document.getElementById('inputPhoneSupplier').value = ""
-    document.getElementById('inputSiteSupplier').value = ""
-    document.getElementById('inputCepSupplier').value = ""
-    document.getElementById('inputLogradouroSupplier').value = ""
-    document.getElementById('inputNumeroSupplier').value = ""
-    document.getElementById('inputBairroSupplier').value = ""
-    document.getElementById('inputCidadeSupplier').value = ""
-    document.getElementById('inputUfSupplier').value = ""
+    resetForm()
 })
  
- 
+function resetForm() {
+    // Recarregar a página
+    location.reload()
+}
 // Fim - Reset Form <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
