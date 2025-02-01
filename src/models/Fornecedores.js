@@ -33,6 +33,17 @@ const fornecedoresSchema = new Schema ({
     },
     ufFornecedor: {
         type: String
+    },
+    dddFornecedor: {
+        type: String
+    
+    },
+    cnpjFornecedor: {
+        type: String
+    
+    },
+    compleFornecedor: {
+        type: String
     }
 })
  

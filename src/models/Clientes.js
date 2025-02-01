@@ -33,7 +33,19 @@ const clienteSchema = new Schema ({
     },
     ufCliente: {
         type: String
+    },
+    dddCliente: {
+        type: String
+    
+    },
+    cpfCliente: {
+        type: String
+    
+    },
+    compleCliente: {
+        type: String
     }
+    
 })
  
 // exportar para o arquivo main.js

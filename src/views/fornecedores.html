@@ -30,14 +30,20 @@
             </div>
  
             <!-- Nome do Fornecedor -->
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <label for="inputNameSupplier" class="form-label">Razão Social</label>
                 <input class="form-control" type="text" id="inputNameSupplier" spellcheck="false" maxlength="50"
                     required>
             </div>
 
+            <!-- CNPJ do Cliente -->
+            <div class="col-md-3">
+                <label for="inputCnpjClient" class="form-label">CNPJ</label>
+                <input class="form-control" type="text" id="inputCnpjSupplier" maxlength="14" required>
+            </div>
+
             <!-- Novo campo: CEP -->
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label for="inputCepSupplier" class="form-label">CEP</label>
                 <input class="form-control" type="text" id="inputCepSupplier" maxlength="9" required>
             </div>
@@ -49,22 +55,35 @@
                 <input class="form-control" type="text" id="inputSiteSupplier" spellcheck="false" maxlength="50">
             </div>
 
+            <!-- DDD do Fornecedor -->
+
+            <div class="col-md-1">
+                <label for="inputDddSupplier" class="form-label">DDD</label>
+                <input class="form-control" type="tel" id="inputDddSupplier" spellcheck="false" maxlength="2" required>
+            </div>
+
             <!-- Telefone do Fornecedor -->
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label for="inputPhoneSupplier" class="form-label">Telefone</label>
-                <input class="form-control" type="tel" id="inputPhoneSupplier" maxlength="15" required>
+                <input class="form-control" type="tel" id="inputPhoneSupplier" maxlength="9" required>
             </div> 
  
             <!-- Novo campo: Logradouro -->
-            <div class="col-md-7">
+            <div class="col-md-6">
                 <label for="inputLogradouroSupplier" class="form-label">Logradouro</label>
                 <input class="form-control" type="text" id="inputLogradouroSupplier" required>
             </div>
  
             <!-- Novo campo: Número -->
-            <div class="col-md-5">
+            <div class="col-md-3">
                 <label for="inputNumeroSupplier" class="form-label">Número</label>
                 <input class="form-control" type="number" id="inputNumeroSupplier" required>
+            </div>
+
+            <!-- Complemento -->
+            <div class="col-md-3">
+                <label for="inputCompleSupplier" class="form-label">Complemento</label>
+                <input class="form-control" type="text" id="inputCompleSupplier" required>
             </div>
  
             <!-- Novo campo: Bairro e Cidade lado a lado -->

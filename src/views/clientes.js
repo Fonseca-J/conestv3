@@ -7,10 +7,17 @@ const foco = document.getElementById('searchClient')
  
 //Mudar as propriedades do documento html ao iniciar a janela
 document.addEventListener('DOMContentLoaded', () => {
-    btnCreate.disabled = true
     btnUpdate.disabled = true
     btnDelete.disabled = true
     foco.focus()
+    //desativar o input das caixas de texto dentro da div .bloqueio
+    /*
+    document.querySelectorAll('.bloqueio input').forEach(input => {
+        input.disabled = true
+    })
+    */
+    //aviso (pop-up)
+    //api.avisoCliente()
 })
  
 // Função para manipular o evento da tecla Enter
@@ -36,11 +43,14 @@ let arrayCliente = []
 let formCliente = document.getElementById('frmClient')
 let idCliente = document.getElementById('inputIdClient')
 let nomeCliente = document.getElementById('inputNameClient')
+let cpfCliente = document.getElementById('inputCpfClient')
+let dddCliente = document.getElementById('inputDddClient')
 let foneCliente = document.getElementById('inputPhoneClient')
 let emailCliente = document.getElementById('inputEmailClient')
 let cepCliente = document.getElementById('inputCepClient')
 let logradouroCliente = document.getElementById('inputLogradouroClient')
 let numeroCliente = document.getElementById('inputNumeroClient')
+let compleCliente = document.getElementById('inputCompleClient')
 let bairroCliente = document.getElementById('inputBairroClient')
 let cidadeCliente = document.getElementById('inputCidadeClient')
 let ufCliente = document.getElementById('inputUfClient')
@@ -59,11 +69,14 @@ formCliente.addEventListener('submit', async (event) => {
         // Criar um objeto
         const cliente = {
             nomeCli: nomeCliente.value,
+            cpfCli: cpfCliente.value,
+            dddCli: dddCliente.value,
             foneCli: foneCliente.value,
             emailCli: emailCliente.value,
             cepCli: cepCliente.value,
             logradouroCli: logradouroCliente.value,
             numeroCli: numeroCliente.value,
+            compleCli: compleCliente.value,
             bairroCli: bairroCliente.value,
             cidadeCli: cidadeCliente.value,
             ufCli: ufCliente.value
@@ -74,11 +87,14 @@ formCliente.addEventListener('submit', async (event) => {
         const cliente = {
             idCli: idCliente.value,
             nomeCli: nomeCliente.value,
+            cpfCli: cpfCliente.value,
+            dddCli: dddCliente.value,
             foneCli: foneCliente.value,
             emailCli: emailCliente.value,
             cepCli: cepCliente.value,
             logradouroCli: logradouroCliente.value,
             numeroCli: numeroCliente.value,
+            compleCli: compleCliente.value,
             bairroCli: bairroCliente.value,
             cidadeCli: cidadeCliente.value,
             ufCli: ufCliente.value
@@ -114,18 +130,26 @@ function buscarCliente() {
             // percorrer o array de clientes, extrair os dados e setar (preencher) os campos do formulário
             arrayCliente.forEach((c) => {
                 document.getElementById('inputNameClient').value = c.nomeCliente
+                document.getElementById('inputCpfClient').value = c.cpfCliente
+                document.getElementById('inputDddClient').value = c.dddCliente
                 document.getElementById('inputPhoneClient').value = c.foneCliente
                 document.getElementById('inputEmailClient').value = c.emailCliente
                 document.getElementById('inputCepClient').value = c.cepCliente
                 document.getElementById('inputLogradouroClient').value = c.logradouroCliente
                 document.getElementById('inputNumeroClient').value = c.numeroCliente
+                document.getElementById('inputCompleClient').value = c.compleCliente
                 document.getElementById('inputBairroClient').value = c.bairroCliente
                 document.getElementById('inputCidadeClient').value = c.cidadeCliente
                 document.getElementById('inputUfClient').value = c.ufCliente
                 document.getElementById('inputIdClient').value = c._id
                 //limpar o campo de busca e remover o foco
                 foco.value = ""
-                foco.blur()
+                
+                // Validação 
+                foco.disabled = true
+                btnCreate.disabled = true
+                btnUpdate.disabled = true
+
                 //liberar os botões editar e excluir
                 document.getElementById('btnUpdate').disabled = false
                 document.getElementById('btnDelete').disabled = false
@@ -253,7 +277,7 @@ cepCliente.addEventListener('blur', async () => {
  
                 // Determina o DDD baseado na UF ou cidade
                 const ddd = getDDD(data.uf, data.localidade)
-                foneCliente.value = `(${ddd}) `
+                dddCliente.value = `(${ddd}) `
             }
         } catch (error) {
             console.log("Erro ao buscar CEP:", error)
