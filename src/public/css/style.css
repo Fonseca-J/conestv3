@@ -40,3 +40,17 @@ footer {
     position: fixed;
     bottom: 0;
 }
+
+footer p {
+    color: #FFFFFF;
+    margin: 0px 0px 0px 10px;
+}
+ 
+footer img {
+    margin-right: 10px;
+}
+
+input[type=number]::-webkit-inner-spin-button { 
+    -webkit-appearance: none;
+    
+}
