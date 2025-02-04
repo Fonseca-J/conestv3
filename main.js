@@ -337,16 +337,13 @@ ipcMain.on('new-client', async (event, cliente) => {
             bairroCliente: cliente.bairroCli,
             cidadeCliente: cliente.cidadeCli,
             ufCliente: cliente.ufCli,
-<<<<<<< HEAD
             telefoneCliente: cliente.telefoneCli,
             cpfCliente: cliente.cpfCli,
-            complementoCliente: cliente.complementoCli
-=======
+            complementoCliente: cliente.complementoCli,
             cpfCliente: cliente.cpfCli,
             dddCliente: cliente.dddCli,
             compleCliente: cliente.compleCli
 
->>>>>>> 6a1b007354b2c113fd6be2846647fc9b51bb2d3e
         })
         // A linha abaixo usa a biblioteca moongoose para salvar
         await novoCliente.save()
