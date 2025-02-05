@@ -1,4 +1,4 @@
-const { app, BrowserWindow, nativeTheme, Menu, shell, ipcMain, dialog } = require('electron/main')
+const { app, BrowserWindow, nativeTheme, Menu, shell, ipcMain, dialog, globalShortcut } = require('electron/main')
 const path = require('node:path')
  
 // Importação módulo de conexão
@@ -31,7 +31,7 @@ function createWindow() {
     })
  
     // Menu personalizado (comentar para debugar)
-    // Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template))
  
     win.loadFile('./src/views/index.html')
  
@@ -94,7 +94,7 @@ function clientWindow() {
         client = new BrowserWindow({
             width: 1100,
             height: 800,
-            //autoHideMenuBar: true,
+            autoHideMenuBar: true,
             resizable: true,
             minimizable: true,
             //titleBarStyle: "hidden" // Esconder a barra de estilo (ex: totem de auto atendimento)
@@ -127,7 +127,7 @@ function supplierWindow() {
         supplier = new BrowserWindow({
             width: 1100,
             height: 800,
-            //autoHideMenuBar: true,
+            autoHideMenuBar: true,
             resizable: true,
             minimizable: true,
             //titleBarStyle: "hidden" // Esconder a barra de estilo (ex: totem de auto atendimento)
@@ -160,7 +160,7 @@ function productsWindow() {
         products = new BrowserWindow({
             width: 1100,
             height: 800,
-            //autoHideMenuBar: true,
+            autoHideMenuBar: true,
             resizable: true,
             minimizable: true,
             //titleBarStyle: "hidden" // Esconder a barra de estilo (ex: totem de auto atendimento)
@@ -211,6 +211,19 @@ function reportsWindow() {
  
 // Execução assíncrona do aplicativo electron
 app.whenReady().then(() => {
+    // Registrar atalho global para 'DEVTOOLS' em qualquer janela ativa
+    globalShortcut.register('Ctrl+Shift+I', () => {
+        const tools = BrowserWindow.getFocusedWindow()
+        if (tools) {
+            tools.webContents.openDevTools()
+        }
+    })
+
+    //Desregistrar atalhos globais antes de sair
+    app.on('will-quit', () => {
+        globalShortcut.unregisterAll()
+    })
+
     createWindow()
  
     // Melhor local para estabelecer a conexão com o banco de dados
@@ -242,13 +255,37 @@ app.on('window-all-closed', () => {
         app.quit()
     }
 })
+
+// Reduzir logs não críticos (mensagens no console quando executar  Devtools)
+app.commandLine.appendSwitch('log-level', '3')
  
 // Template do menu
 const template = [
     {
-        label: 'Arquivo',
+        label: 'Cadastro',
         submenu: [
             {
+                label: 'Clientes',
+                click: () => clientWindow()
+            },
+
+            {
+                label: 'Fornecedores',
+                click: () => supplierWindow()
+            },
+
+            {
+                label: 'Produtos',
+                click: () => productsWindow()
+            },
+
+            
+            {
+                type: 'separator'
+            },
+            
+            {
+
                 label: 'Novo',
                 accelerator: 'CmdOrCtrl+N'
             },
@@ -276,6 +313,11 @@ const template = [
             }
  
         ]
+    },
+
+    {
+        label: 'Rlatórios',
+        
     },
  
     {
@@ -339,11 +381,7 @@ ipcMain.on('new-client', async (event, cliente) => {
             ufCliente: cliente.ufCli,
             telefoneCliente: cliente.telefoneCli,
             cpfCliente: cliente.cpfCli,
-            complementoCliente: cliente.complementoCli,
-            cpfCliente: cliente.cpfCli,
-            dddCliente: cliente.dddCli,
-            compleCliente: cliente.compleCli
-
+            complementoCliente: cliente.complementoCli
         })
         // A linha abaixo usa a biblioteca moongoose para salvar
         await novoCliente.save()
