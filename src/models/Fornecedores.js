@@ -10,7 +10,7 @@ const fornecedoresSchema = new Schema ({
     nomeFornecedor: {
         type: String
     },
-    foneFornecedor: {
+    dddFornecedor: {
         type: String
     },
     siteFornecedor: {
@@ -34,20 +34,18 @@ const fornecedoresSchema = new Schema ({
     ufFornecedor: {
         type: String
     },
-    dddFornecedor: {
+    cpnjFornecedor: {
         type: String
-    
     },
-    cnpjFornecedor: {
+    complementoFornecedor: {
         type: String
-    
     },
-    compleFornecedor: {
+    telefoneFornecedor: {
         type: String
     }
+   
 })
  
 // exportar para o arquivo main.js
 // Para modificar o nome da coleção ("tabela"), basta modificar na linha abaixo o rótulo 'Fornecedor', sempre iniciando com letra maiúscula
 module.exports = model('Fornecedores', fornecedoresSchema)
- 

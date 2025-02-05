@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Evitar ataques de injeção de código malicioso -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'">
     <title>Conest</title>
     <link rel="stylesheet" href="../public/css/bootstrap.min.css">
@@ -13,19 +12,14 @@
 
 <body>
     <div class="container">
-        
-    
-
     <section id="sobre">
-        <h1>Conest</h1>
-        <p>Joao Fonseca</p>
-        <button class="btn btn-secondary float-end" onclick="fechar()">OK</button>
+        <h1>CONEST</h1>
+        <p>Sitema de gestão de estoque</p>
+        <p>Author: Joao Fonseca</p>
+        <button class="btn btn-dark float-end" onclick="fechar()">OK</button>
     </section>
     </div>
 
-
-    <!-- Processo de Renderização -->
-    
     <script src="../public/js/bootstrap.min.js"></script>
     <script src="renderer.js"></script>
 </body>

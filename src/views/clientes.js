@@ -217,7 +217,6 @@ const dddMapping = {
     "RO": 69, // Rondônia
     "RR": 95, // Roraima
     "TO": 63, // Tocantins
- 
     // Região Nordeste
     "AL": 82, // Alagoas
     "BA": 71, // Bahia
@@ -228,19 +227,16 @@ const dddMapping = {
     "PI": 86, // Piauí
     "RN": 84, // Rio Grande do Norte
     "SE": 79, // Sergipe
- 
     // Região Centro-Oeste
     "DF": 61, // Distrito Federal
     "GO": 62, // Goiás
     "MT": 65, // Mato Grosso
     "MS": 67, // Mato Grosso do Sul
- 
     // Região Sudeste
     "ES": 27, // Espírito Santo
     "MG": 31, // Minas Gerais
     "RJ": 21, // Rio de Janeiro
     "SP": 11, // São Paulo
- 
     // Região Sul
     "PR": 41, // Paraná
     "RS": 51, // Rio Grande do Sul
@@ -299,13 +295,13 @@ function resetForm() {
 
 function validarCpf(cpf) {
     cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
- 
+
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
         return false; // CPF inválido
     }
- 
+
     let soma = 0, peso = 10;
- 
+
     // Primeiro dígito verificador
     for (let i = 0; i < 9; i++) {
         soma += parseInt(cpf.charAt(i)) * peso--;
@@ -313,7 +309,7 @@ function validarCpf(cpf) {
     let digito1 = 11 - (soma % 11);
     if (digito1 >= 10) digito1 = 0;
     if (parseInt(cpf.charAt(9)) !== digito1) return false;
- 
+
     // Segundo dígito verificador
     soma = 0;
     peso = 11;
@@ -323,23 +319,23 @@ function validarCpf(cpf) {
     let digito2 = 11 - (soma % 11);
     if (digito2 >= 10) digito2 = 0;
     if (parseInt(cpf.charAt(10)) !== digito2) return false;
- 
+
     return true;
 }
- 
+
 async function validarExistenciaCpf(cpf) {
     const inputCpf = document.getElementById('inputCpfClient');
- 
+
     if (!validarCpf(cpf)) {
         inputCpf.value = '';
         inputCpf.placeholder = 'CPF inválido!';
         return;
     }
- 
+
     try {
         const response = await fetch(`https://api.validador-cpf.com/${cpf}`); // API fictícia, substitua por uma real
         const data = await response.json();
- 
+
         if (data.exists) {
         } else {
             inputCpf.placeholder = 'CPF não encontrado!';
@@ -349,13 +345,13 @@ async function validarExistenciaCpf(cpf) {
         console.error('Erro ao validar CPF:', error);
     }
 }
- 
+
 document.getElementById('inputCpfClient').addEventListener('blur', () => {
     const cpf = document.getElementById('inputCpfClient').value;
     validarExistenciaCpf(cpf);
 });
- 
+
 // Restaurar placeholder quando o usuário digitar novamente
 document.getElementById('inputCpfClient').addEventListener('input', function () {
     this.placeholder = 'Digite seu CPF';
-})
+});
