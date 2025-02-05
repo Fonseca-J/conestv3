@@ -30,29 +30,32 @@
             </div>
  
             <!-- Nome do Fornecedor -->
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label for="inputNameSupplier" class="form-label">Razão Social</label>
                 <input class="form-control" type="text" id="inputNameSupplier" spellcheck="false" maxlength="50"
                     required>
             </div>
  
-             <!-- Novo campo: CNPJ -->
-             <div class="col-md-5">
+             <!-- CNPJ -->
+             <div class="col-md-4">
                 <label for="inputCnpjSupplier" class="form-label">CNPJ</label>
                 <input class="form-control" type="text" id="inputCnpjSupplier" maxlength="14" required>
             </div>
- 
-            <!-- Site do Fornecedor -->
-            <div class="col-md-4">
-                <label for="inputSiteSupplier" class="form-label">Site</label>
-                <input class="form-control" type="text" id="inputSiteSupplier" spellcheck="false" maxlength="50">
-            </div>
- 
+
             <!-- Novo campo: CEP -->
-            <div class="col-md-2">
+            <div class="col-md-4">
                 <label for="inputCepSupplier" class="form-label">CEP</label>
                 <input class="form-control" type="text" id="inputCepSupplier" maxlength="9">
             </div>
+ 
+            <!-- Site do Fornecedor -->
+            <div class="col-md-7">
+                <label for="inputSiteSupplier" class="form-label">Site</label>
+                <input class="form-control" type="url" id="inputSiteSupplier" spellcheck="false" maxlength="50" pattern="https://.*" title="O site deve começar com https://">
+                <button type="button" class="mt-2 btn btn-secondary" id="btnUrl" onclick="acessarSite() ">Acessar Site</button>
+            </div>
+ 
+            
  
             <!-- DDD do Fornecedor -->
             <div class="col-md-1">
@@ -67,20 +70,32 @@
             </div>
  
             <!-- Novo campo: Logradouro -->
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <label for="inputLogradouroSupplier" class="form-label">Logradouro</label>
                 <input class="form-control" type="text" id="inputLogradouroSupplier">
             </div>
+
+            <!-- Novo campo: Número-->
+            <div class="col-md-2">
+                <label for="inputNumeroSupplier" class="form-label">Número</label>
+                <input class="form-control" type="number" id="inputNumeroSupplier">
+            </div>
+ 
+            <!-- Novo campo: Complemento-->
+            <div class="col-md-2">
+                <label for="inputComplementoSupplier" class="form-label">Complemento</label>
+                <input class="form-control" type="text" id="inputComplementoSupplier">
+            </div>
  
  
-            <!-- Novo campo: Bairro -->
-            <div class="col-md-5">
+            <!-- Bairro -->
+            <div class="col-md-3">
                 <label for="inputBairroSupplier" class="form-label">Bairro</label>
                 <input class="form-control" type="text" id="inputBairroSupplier">
             </div>
  
             <!-- Novo campo: Cidade-->
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <label for="inputCidadeSupplier" class="form-label">Cidade</label>
                 <input class="form-control" type="text" id="inputCidadeSupplier">
             </div>
@@ -120,17 +135,7 @@
                 </select>
             </div>
  
-            <!-- Novo campo: Número-->
-            <div class="col-md-2">
-                <label for="inputNumeroSupplier" class="form-label">Número</label>
-                <input class="form-control" type="number" id="inputNumeroSupplier">
-            </div>
- 
-            <!-- Novo campo: Complemento-->
-            <div class="col-md-2">
-                <label for="inputComplementoSupplier" class="form-label">Complemento</label>
-                <input class="form-control" type="text" id="inputComplementoSupplier">
-            </div>
+            
  
             <!-- Botões ao lado do campo UF com espaçamento -->
             <div class="col-md-6 mt-5 d-flex">
