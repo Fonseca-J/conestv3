@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ///btnCreate.disabled = true
     btnUpdate.disabled = true
     btnDelete.disabled = true
+    btnUrl.disabled = true
     foco.focus()
 })  
  
@@ -147,6 +148,7 @@ function buscarFornecedor() {
                 //liberar os botões editar e excluir
                 document.getElementById('btnUpdate').disabled = false
                 document.getElementById('btnDelete').disabled = false
+                document.getElementById('btnUrl').disabled = false
                 //restaurar o padrão da tecla Enter
                 restaurarEnter()
             })
@@ -278,7 +280,20 @@ cepFornecedor.addEventListener('blur', async () => {
     }
 })
  
- 
+//Acessar Site >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function acessarSite() {
+    let urlFornecedor = document.getElementById('inputSiteSupplier').value
+    //console.log(urlFornecedor) // teste de acesso ao site
+    const url = {
+        url: urlFornecedor
+    }
+    // Enviar ao "main" a url do site
+    api.abrirSite(url)
+
+
+}
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 api.resetarFormulario((args) => {
     resetForm()
