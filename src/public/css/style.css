@@ -55,6 +55,16 @@ footer img {
 
 input[type=number]::-webkit-inner-spin-button { 
     -webkit-appearance: none;
-    
 }
 
+/* Imagem do produto */
+#imageProductPreview {
+    border: 1px solid #dfdfdf;
+    border-radius: 5px;
+    width: 240px;
+    height: 240px;
+    padding: 5px;
+    position: fixed;
+    right: 50px;
+    bottom: 30px;
+ }
