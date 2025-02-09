@@ -29,48 +29,28 @@
                 <input class="form-control" type="text" id="inputIdSupplier" placeholder="id">
             </div>
  
-            <!-- Nome do Fornecedor -->
-            <div class="col-md-4">
+            <!-- RAZÃO SOCIAL -->
+            <div class="col-md-6">
                 <label for="inputNameSupplier" class="form-label">Razão Social</label>
                 <input class="form-control" type="text" id="inputNameSupplier" spellcheck="false" maxlength="50"
                     required>
             </div>
  
              <!-- CNPJ -->
-             <div class="col-md-4">
+             <div class="col-md-3">
                 <label for="inputCnpjSupplier" class="form-label">CNPJ</label>
                 <input class="form-control" type="text" id="inputCnpjSupplier" maxlength="14" required>
             </div>
 
             <!-- Novo campo: CEP -->
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label for="inputCepSupplier" class="form-label">CEP</label>
                 <input class="form-control" type="text" id="inputCepSupplier" maxlength="9">
             </div>
  
-            <!-- Site do Fornecedor -->
-            <div class="col-md-7">
-                <label for="inputSiteSupplier" class="form-label">Site</label>
-                <input class="form-control" type="url" id="inputSiteSupplier" spellcheck="false" maxlength="50" pattern="https://.*" title="O site deve começar com https://">
-                <button type="button" class="mt-2 btn btn-secondary" id="btnUrl" onclick="acessarSite() ">Acessar Site</button>
-            </div>
- 
-            
- 
-            <!-- DDD do Fornecedor -->
-            <div class="col-md-1">
-                <label for="inputdddSupplier" class="form-label">DDD</label>
-                <input class="form-control" type="tel" id="inputdddSupplier" maxlength="15">
-            </div>
- 
-            <!-- Telefone do Fornecedor-->
-            <div class="col-md-4">
-                <label for="inputPhoneSupplier" class="form-label">Telefone</label>
-                <input class="form-control" type="tel" id="inputPhoneSupplier" maxlength="9" required>
-            </div>
  
             <!-- Novo campo: Logradouro -->
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <label for="inputLogradouroSupplier" class="form-label">Logradouro</label>
                 <input class="form-control" type="text" id="inputLogradouroSupplier">
             </div>
@@ -89,7 +69,7 @@
  
  
             <!-- Bairro -->
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label for="inputBairroSupplier" class="form-label">Bairro</label>
                 <input class="form-control" type="text" id="inputBairroSupplier">
             </div>
@@ -134,8 +114,30 @@
                     <option value="TO">TO</option>
                 </select>
             </div>
+
+            <!-- Site do Fornecedor -->
+            <div class="col-md-6">
+                <label for="inputSiteSupplier" class="form-label">Site</label>
+                <input class="form-control" type="url" id="inputSiteSupplier" spellcheck="false" maxlength="50" pattern="https://.*" title="O site deve começar com https://">
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="mt-2 btn btn-secondary" id="btnUrl" onclick="acessarSite()">Acessar Site</button>
+                  </div>
+            </div>
  
             
+ 
+            <!-- DDD do Fornecedor -->
+            <div class="col-md-1">
+                <label for="inputdddSupplier" class="form-label">DDD</label>
+                <input class="form-control" type="tel" id="inputdddSupplier" maxlength="15">
+            </div>
+ 
+            <!-- Telefone do Fornecedor-->
+            <div class="col-md-4">
+                <label for="inputPhoneSupplier" class="form-label">Telefone</label>
+                <input class="form-control" type="tel" id="inputPhoneSupplier" maxlength="9" required>
+            </div>
+ 
  
             <!-- Botões ao lado do campo UF com espaçamento -->
             <div class="col-md-6 mt-5 d-flex">
