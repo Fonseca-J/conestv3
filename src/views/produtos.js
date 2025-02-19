@@ -50,14 +50,26 @@ let idProduto = document.getElementById('inputIdProduct')
 let nomeProduto = document.getElementById('inputNameProduct')
 let barcodeProduto = document.getElementById('inputBarcodeProduct')
 let precoProduto = document.getElementById('inputPriceProduct')
- 
+let caminhoImagemProduto = document.getElementById('pathImageProduct')
+let imagem = document.getElementById('imageProductPreview')
+
+// Variavel usada para armazenar o caminho da imagem *
+let caminhoImagem
+
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+async function uploadImage() {
+    caminhoImagem = await api.selecionarArquivo()
+    console.log(caminhoImagem)
+    imagem.src = `file://${caminhoImagem}`
+}
+
 // Evento associado ao botão adicionar (quando o botão for pressionado)
 formProduto.addEventListener('submit', async (event) => {
     // Evitar o comportamento padrão de envio em um form
     event.preventDefault()
     // Teste importante! (fluxo dos dados)
-    // console.log(nomeProduto.value, barcodeProduto.value, precoProduto.value)
+    // console.log(idProduto.value, barcodeProduto.value, precoProduto.value, nomeProduto.value, caminhoImagem)
  
     // Passo 2 - slide (envio das informações para o main)
     // Estratégia para determinar se é um novo cadastro de produto ou a edição de um produto já existente
@@ -68,6 +80,7 @@ formProduto.addEventListener('submit', async (event) => {
             nomePro: nomeProduto.value,
             barcodePro: barcodeProduto.value,
             precoPro: precoProduto.value,
+            caminhoImagemPro: caminhoImagem
         }
         api.novoProduto(produto)
     } else {
@@ -77,6 +90,7 @@ formProduto.addEventListener('submit', async (event) => {
             nomeFor: nomeProduto.value,
             barcodePro: barcodeProduto.value,
             precoPro: precoProduto.value,
+            caminhoImagemPro: caminhoImagem
         }
         api.editarProduto(produto)
     }
