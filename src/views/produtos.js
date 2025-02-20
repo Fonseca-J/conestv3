@@ -2,10 +2,10 @@
  * Processo de renderização
  * produtos.js
  */
- 
+
 const foco = document.getElementById('searchProduct') // Campo de busca pelo nome
 const focoBarcode = document.getElementById('searchBarcode'); // Campo de busca do barcode
- 
+
 //Mudar as propriedades do documento html ao iniciar a janela
 document.addEventListener('DOMContentLoaded', () => {
     //btnCreate.disabled = true
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDelete.disabled = true
     foco.focus()
 })
- 
+
 // Manipulação do evento Enter para buscar por nome ou barcode
 function teclaEnter(event) {
     if (event.key === "Enter") {  // Verifica se a tecla pressionada é "Enter"
@@ -30,20 +30,20 @@ function teclaEnter(event) {
         }
     }
 }
- 
- 
- 
+
+
+
 // Função para remover o manipulador do evento da tecla Enter
 function restaurarEnter() {
     document.getElementById('frmProduct').removeEventListener('keydown', teclaEnter)
 }
- 
+
 // manipulando o evento (tecla Enter)
 document.getElementById('frmProduct').addEventListener('keydown', teclaEnter)
- 
+
 // Array usado nos métodos para manipulação da estrutura de dados
 let arrayProduto = []
- 
+
 // Passo 1 - slide (capturar os dados dos inputs do form)
 let formProduto = document.getElementById('frmProduct')
 let idProduto = document.getElementById('inputIdProduct')
@@ -70,34 +70,38 @@ formProduto.addEventListener('submit', async (event) => {
     event.preventDefault()
     // Teste importante! (fluxo dos dados)
     // console.log(idProduto.value, barcodeProduto.value, precoProduto.value, nomeProduto.value, caminhoImagem)
- 
+
     // Passo 2 - slide (envio das informações para o main)
     // Estratégia para determinar se é um novo cadastro de produto ou a edição de um produto já existente
     // Criar um objeto
     if (idProduto.value === "") {
         // Criar um objeto
+        // caminhoImagemPro: caminhoImagem ? caminhoImagem : "" 
+        // ? : (operador ternário (if else)) correção de BUG se não existir caminho da imagem (se nenhuma imagem selecionada) enviar uma string vazia ""
         const produto = {
             nomePro: nomeProduto.value,
             barcodePro: barcodeProduto.value,
             precoPro: precoProduto.value,
-            caminhoImagemPro: caminhoImagem
+            caminhoImagemPro: caminhoImagem ? caminhoImagem : ""
         }
         api.novoProduto(produto)
+
     } else {
         // Criar um objeto
+
         const produto = {
             idPro: idProduto.value,
             nomeFor: nomeProduto.value,
             barcodePro: barcodeProduto.value,
             precoPro: precoProduto.value,
-            caminhoImagemPro: caminhoImagem
+
         }
         api.editarProduto(produto)
     }
 })
 // Fim do CRUD Create/Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
- 
+
+
 // CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function buscarProduto() {
     // Passo 1 (slide)
@@ -127,11 +131,11 @@ function buscarProduto() {
                 document.getElementById('inputIdProduct').value = c._id
                 //limpar o campo de busca e remover o foco
                 foco.value = ""
- 
+
                 foco.disabled = true
                 btnRead.disabled = true
                 btnCreate.disabled = true
- 
+
                 //foco.blur()
                 //liberar os botões editar e excluir
                 document.getElementById('btnUpdate').disabled = false
@@ -156,12 +160,12 @@ function buscarProduto() {
         restaurarEnter()
     })
 }
- 
+
 //BARCODE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //BARCODE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //BARCODE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //BARCODE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
- 
+
 function buscarProdutoPorBarcode() {
     // Passo 1 (slide)
     let barNome = document.getElementById('searchBarcode').value
@@ -190,11 +194,11 @@ function buscarProdutoPorBarcode() {
                 document.getElementById('inputIdProduct').value = c._id
                 //limpar o campo de busca e remover o foco
                 foco.value = ""
- 
+
                 foco.disabled = true
                 btnRead.disabled = true
                 btnCreate.disabled = true
- 
+
                 //foco.blur()
                 //liberar os botões editar e excluir
                 document.getElementById('btnUpdate').disabled = false
@@ -219,26 +223,26 @@ function buscarProdutoPorBarcode() {
         restaurarEnter()
     })
 }
- 
- 
- 
- 
- 
+
+
+
+
+
 // Fim do CRUD Read por Código de Barras <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
+
 // CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function excluirProduto() {
     api.deletarProduto(idProduto.value) // Passo 1 do slide
 }
 // Fim do CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
- 
- 
+
+
+
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 api.resetarFormulario((args) => {
     resetForm()
 })
- 
+
 function resetForm() {
     // Recarregar a página
     location.reload()
