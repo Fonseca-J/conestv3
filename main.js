@@ -16,11 +16,10 @@ const fornecedorModel = require('./src/models/Fornecedores.js')
 // importação do Schema Produtos da camada model
 const produtoModel = require('./src/models/Produtos.js')
 
-// importar biblioteca nativa JS para manipular arquivos*
+// Importar biblioteca nativa do JS para minupular arquivos
 const fs = require('fs')
 
-
-// Janela Principal
+// Janela Principal 
 let win
 function createWindow() {
     nativeTheme.themeSource = 'light'
@@ -163,7 +162,7 @@ function productsWindow() {
         products = new BrowserWindow({
             width: 1100,
             height: 800,
-            autoHideMenuBar: true,
+            //autoHideMenuBar: true,
             resizable: true,
             minimizable: true,
             //titleBarStyle: "hidden" // Esconder a barra de estilo (ex: totem de auto atendimento)
@@ -214,7 +213,7 @@ function reportsWindow() {
 
 // Execução assíncrona do aplicativo electron
 app.whenReady().then(() => {
-    // Registrar atalho global para 'DEVTOOLS' em qualquer janela ativa
+    // Registar atalho global para devtools em qualquer janela ativa
     globalShortcut.register('Ctrl+Shift+I', () => {
         const tools = BrowserWindow.getFocusedWindow()
         if (tools) {
@@ -222,13 +221,12 @@ app.whenReady().then(() => {
         }
     })
 
-    //Desregistrar atalhos globais antes de sair
+    // Desregistrar atalhos globais antes de sair
     app.on('will-quit', () => {
         globalShortcut.unregisterAll()
     })
 
     createWindow()
-
     // Melhor local para estabelecer a conexão com o banco de dados
     // Importar antes o módulo de conexã no início do código
 
@@ -259,8 +257,9 @@ app.on('window-all-closed', () => {
     }
 })
 
-// Reduzir logs não críticos (mensagens no console quando executar  Devtools)
+// Reduzir logs não críticos (mensagens no console quando executar devtools)
 app.commandLine.appendSwitch('log-level', '3')
+
 
 // Template do menu
 const template = [
@@ -271,24 +270,15 @@ const template = [
                 label: 'Clientes',
                 click: () => clientWindow()
             },
-
             {
                 label: 'Fornecedores',
                 click: () => supplierWindow()
             },
-
             {
                 label: 'Produtos',
                 click: () => productsWindow()
             },
-
-
             {
-                type: 'separator'
-            },
-
-            {
-
                 label: 'Novo',
                 accelerator: 'CmdOrCtrl+N'
             },
@@ -317,10 +307,8 @@ const template = [
 
         ]
     },
-
     {
-        label: 'Rlatórios',
-
+        label: 'Relatórios'
     },
 
     {
@@ -532,11 +520,12 @@ ipcMain.on('delete-client', async (event, idCliente) => {
 /*************** Fornecedores **************/
 /******************************************/
 
-//Acessar site externo
+// Acessar site externo
 ipcMain.on('url-site', (event, site) => {
     let url = site.url
-    //console.log(site)
+    // console.log(url)
     shell.openExternal(url)
+    
 })
 
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -702,69 +691,15 @@ ipcMain.on('delete-supplier', async (event, idFornecedor) => {
 
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // Recebimento dos dados do formulário do produto
-ipcMain.on('new-product', async (event, produto) => {
-    // Teste de recebimento dos dados (Passo 2 - slide) Importante!
-    console.log(produto)
-
-    // Passo 3 - slide (cadastrar os dados do banco de dados)
-    try {
-        //====================================================== (imagens #1)
-        // Criar uam pasta uploads se não existir
-        const uploadDir = path.join(__dirname, 'uploads') // "__dirname - (cria um caminho absoluto)
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir)
-        }
-
-        //====================================================== (imagens #2)
-        // Gerar um nome único para o arquivo (não sobrescrever)
-        const fileName = `${Date.now()}_${path.basename(produto.caminhoImagemPro)}`
-        //console.log(fileName) //apoio a lógica
-        const uploads = path.join(uploadDir, fileName)
-
-        //====================================================== (imagens #3)
-        // Copiar o arquivo de imagem para a pasta Upload
-        fs.copyFileSync(produto.caminhoImagemPro, uploads) // *
-
-        //Cadastrar o produto no banco de dados
-        //====================================================== (imagens #4)
-        // Criar um novo objeto usando a classe modelo
-        const novoProduto = new produtoModel({
-            nomeProduto: produto.nomePro,
-            barcodeProduto: produto.barcodePro,
-            precoProduto: produto.precoPro,
-            caminhoImagemProduto: uploads // salvando o caminho correto no banco
-        })
-        // A linha abaixo usa a biblioteca moongoose para salvar
-        await novoProduto.save()
-
-        // Confirmação  de cliente  adicionado no banco
-        dialog.showMessageBox({
-            type: 'info',
-            message: "Produto Adicionado com Sucesso",
-            buttons: ['OK']
-        }).then((result) => {
-            if (result.response === 0) {
-                event.reply('reset-form')
-            }
-        })
-    } catch (error) {
-        console.log(error)
-    }
-
-})
-
-
-
-// Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-ipcMain.handle('open-sife-dialog', async () => {
+// Obter o caminho da imagem (executar o open dialog)
+ipcMain.handle('open-file-dialog', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
-        title: "Selecionar Imagem",
+        title: "Selecionar imagem",
         properties: ['openFile'],
         filters: [
             {
                 name: 'Imagens',
                 extensions: ['png', 'jpg', 'jpeg']
-
             }
         ]
     })
@@ -772,10 +707,72 @@ ipcMain.handle('open-sife-dialog', async () => {
     if (canceled === true || filePaths.length === 0) {
         return null
     } else {
-        return filePaths[0] // retorna o caminho do arquivo
+        return filePaths[0] // Retorna o caminho do arquivo
     }
-
 })
+
+ipcMain.on('new-product', async (event, produto) => {
+    // teste de recebimento dos dados do produto
+    console.log(produto) // Teste do passo 2 (recebimento do produto)
+    
+    // Resolução do BUG (quando a imagem não for selecionada)
+    let caminhoImagemSalvo = ""
+
+     
+
+    try {
+
+        // Correção de BUG (validação de imagem)
+        if (produto.caminhoImagemPro) {
+       //======================================(imagens #1)
+       // Criar a pasta uploads se não existir
+       //__dirname (caminho absoluto)
+       const uploadDir = path.join(__dirname, 'uploads')
+       if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir)
+       }
+
+       //=======================================(imagens #2)
+       // Gerar um nome único para o arquivo (para não sobrescrever)
+       const fileName = `${Date.now()}_${path.basename(produto.caminhoImagemPro)}`
+       // console.log(fileName) // Apoio a lógica
+       const uploads = path.join(uploadDir, fileName)
+
+
+       //=======================================(imagens #3)
+       // Copiar o arquivo de imagem para pasta uploads
+       fs.copyFileSync(produto.caminhoImagemPro, uploads)
+
+       //=======================================(imagens #4)
+       // Alterar a variável caminhoImagemSalvo para uploads
+       caminhoImagemSalvo = uploads
+    }
+       // Cadastrar novo produto no banco de dados
+       const novoProduto  = new produtoModel ({
+        barcodeProduto: produto.barcodePro,
+        nomeProduto: produto.nomePro,
+        precoProduto: produto.precoPro,
+        caminhoImagemProduto: caminhoImagemSalvo // salvando o caminho corretor no banco
+       })
+
+       await novoProduto.save()
+
+       dialog.showMessageBox({
+        type: 'info',
+        message: 'Produto adicionado com sucesso',
+        buttons: ['OK']
+    }).then((result) => {
+        if (result.response === 0) {
+            event.reply('reset-form')
+        }
+    })
+    
+
+    } catch (error) {
+        console.log(error)
+    }
+})
+// Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 // CRUD Read - Nome barcode >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
