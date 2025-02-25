@@ -28,13 +28,7 @@ contextBridge.exposeInMainWorld('api', {
     deletarFornecedor: (idFornecedor) => ipcRenderer.send('delete-supplier', idFornecedor),
     editarFornecedor: (fornecedor) => ipcRenderer.send('update-supplier', fornecedor),
 
-    novoProduto: (produto) => ipcRenderer.send('new-product', produto),
-    buscarProduto: (proNome) => ipcRenderer.send('search-product', proNome),
-    renderizarProduto: (dadosProduto) => ipcRenderer.on('data-product', dadosProduto),
-    buscarProdutoPorBarcode: (barCode) => ipcRenderer.send('search-barcode', barCode),
-    renderizarBarcode: (dadosBarcode) => ipcRenderer.on('data-barcode', dadosBarcode),
-    deletarProduto: (idProduto) => ipcRenderer.send('delete-product', idProduto),
-    editarProduto: (produto) => ipcRenderer.send('update-product', produto),
+    
 
     validarBusca: () => ipcRenderer.send('dialog-search'),
     setarNomeCliente: (args) => ipcRenderer.on('set-nameClient', args),
@@ -46,5 +40,14 @@ contextBridge.exposeInMainWorld('api', {
 
     abrirSite: (site) => ipcRenderer.send('url-site', site),
 
-    selecionarArquivo: () => ipcRenderer.invoke('open-sife-dialog')
+    selecionarArquivo: () => ipcRenderer.invoke('open-sife-dialog'),
+
+    novoProduto: (produto) => ipcRenderer.send('new-product', produto),
+    buscarProduto: (proNome) => ipcRenderer.send('search-product', proNome),
+    renderizarProduto: (dadosProduto) => ipcRenderer.on('data-product', dadosProduto),
+    buscarProdutoPorBarcode: (barCode) => ipcRenderer.send('search-barcode', barCode),
+    renderizarBarcode: (dadosBarcode) => ipcRenderer.on('data-barcode', dadosBarcode),
+    deletarProduto: (idProduto) => ipcRenderer.send('delete-product', idProduto),
+    editarProduto: (produto) => ipcRenderer.send('update-product', produto),
+    
 })
