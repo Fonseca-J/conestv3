@@ -40,7 +40,7 @@ contextBridge.exposeInMainWorld('api', {
 
     abrirSite: (site) => ipcRenderer.send('url-site', site),
 
-    selecionarArquivo: () => ipcRenderer.invoke('open-sife-dialog'),
+    selecionarArquivo: () => ipcRenderer.invoke('open-site-dialog'),
 
     novoProduto: (produto) => ipcRenderer.send('new-product', produto),
     buscarProduto: (proNome) => ipcRenderer.send('search-product', proNome),
