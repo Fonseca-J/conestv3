@@ -15,33 +15,19 @@ contextBridge.exposeInMainWorld('api', {
     janelaProdutos: () => ipcRenderer.send('open-products'),
     janelaRelatorios: () => ipcRenderer.send('open-reports'),
     resetarFormulario: (args) => ipcRenderer.on('reset-form', args),
-    
+   
     novoCliente: (cliente) => ipcRenderer.send('new-client', cliente),
     buscarCliente: (cliNome) => ipcRenderer.send('search-client', cliNome),
     renderizarCliente: (dadosCliente) => ipcRenderer.on('data-client', dadosCliente),
     deletarCliente: (idCliente) => ipcRenderer.send('delete-client', idCliente),
     editarCliente: (cliente) => ipcRenderer.send('update-client', cliente),
-
+ 
     novoFornecedor: (fornecedor) => ipcRenderer.send('new-supplier', fornecedor),
     buscarFornecedor: (forNome) => ipcRenderer.send('search-supplier', forNome),
     renderizarFornecedor: (dadosFornecedor) => ipcRenderer.on('data-supplier', dadosFornecedor),
     deletarFornecedor: (idFornecedor) => ipcRenderer.send('delete-supplier', idFornecedor),
     editarFornecedor: (fornecedor) => ipcRenderer.send('update-supplier', fornecedor),
-
-    
-
-    validarBusca: () => ipcRenderer.send('dialog-search'),
-    setarNomeCliente: (args) => ipcRenderer.on('set-nameClient', args),
-    setarNomeFornecedor: (args) => ipcRenderer.on('set-nameSupplier', args),
-    setarNomeProduto: (args) => ipcRenderer.on('set-nameProduct', args),
-    setarBarcode: (args) => ipcRenderer.on('set-barcode', args), 
-    deletarBarcode: (idProduto) => ipcRenderer.send('delete-barcode', idProduto),
-    editarBarcode: (produto) => ipcRenderer.send('update-barcode', produto),
-
-    abrirSite: (site) => ipcRenderer.send('url-site', site),
-
-    selecionarArquivo: () => ipcRenderer.invoke('open-site-dialog'),
-
+ 
     novoProduto: (produto) => ipcRenderer.send('new-product', produto),
     buscarProduto: (proNome) => ipcRenderer.send('search-product', proNome),
     renderizarProduto: (dadosProduto) => ipcRenderer.on('data-product', dadosProduto),
@@ -49,5 +35,15 @@ contextBridge.exposeInMainWorld('api', {
     renderizarBarcode: (dadosBarcode) => ipcRenderer.on('data-barcode', dadosBarcode),
     deletarProduto: (idProduto) => ipcRenderer.send('delete-product', idProduto),
     editarProduto: (produto) => ipcRenderer.send('update-product', produto),
-    
+ 
+    validarBusca: () => ipcRenderer.send('dialog-search'),
+    setarNomeCliente: (args) => ipcRenderer.on('set-nameClient', args),
+    setarNomeFornecedor: (args) => ipcRenderer.on('set-nameSupplier', args),
+    setarNomeProduto: (args) => ipcRenderer.on('set-nameProduct', args),
+    setarBarcode: (args) => ipcRenderer.on('set-barcode', args),
+    deletarBarcode: (idProduto) => ipcRenderer.send('delete-barcode', idProduto),
+    editarBarcode: (produto) => ipcRenderer.send('update-barcode', produto),
+    abrirSite: (site) => ipcRenderer.send('url-site', site),
+ 
+    selecionarArquivo: () => ipcRenderer.invoke('open-file-dialog')
 })

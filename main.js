@@ -237,7 +237,9 @@ app.whenReady().then(() => {
         // a linha abaixo estabelece a conexão com o banco
         dbcon = await dbConnect()
         // enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados
-        event.reply('db-message', "conectado")
+        setTimeout(() => {
+            event.reply('db-message', "conectado")
+        },500)
     })
 
     // desconectar do banco de dados ao encerrar a aplicação
@@ -858,11 +860,7 @@ ipcMain.on('search-product', async (event, proNome) => {
     } catch (error) {
         console.log(error);
     }
-
-    
-
-})
-
+});
 // Fim CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // CRUD Delete - Nome produto <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
