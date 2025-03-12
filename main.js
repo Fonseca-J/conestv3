@@ -946,22 +946,51 @@ ipcMain.on('search-barcode', async (event, barCode) => {
 ipcMain.on('update-product', async (event, produto) => {
     // teste de recebimento dos dados do produto ( passo 2 )
     console.log(produto)
-    try {
-        const produtoEditado = await produtoModel.findByIdAndUpdate(
-            produto.idPro, {
-            nomeProduto: produto.nomePro,
-            barcodeProduto: produto.barcodePro,
-            precoProduto: produto.precoPro,
-            caminhoImagemProduto: produto.caminhoImagemPro
-        },
-            {
-                new: true
-            }
-        )
 
-    } catch (error) {
-        console.log(error)
+    // Correçao de BUG (Caminho da imagem)
+    //// estrategia se o usuário não trocou a imagem, editar apenas os campos nome do produto 
+
+    if (produto.caminhoImagemPro === "") {
+        try {
+            const produtoEditado = await produtoModel.findByIdAndUpdate(
+                produto.idPro, {
+                nomeProduto: produto.nomePro,
+                barcodeProduto: produto.barcodePro,
+                precoProduto: produto.precoPro,
+                
+            },
+                {
+                    new: true
+                }
+            )
+    
+        } catch (error) {
+            console.log(error)
+        }
+        
+    } else {
+        try {
+            const produtoEditado = await produtoModel.findByIdAndUpdate(
+                produto.idPro, {
+                nomeProduto: produto.nomePro,
+                barcodeProduto: produto.barcodePro,
+                precoProduto: produto.precoPro,
+                caminhoImagemProduto: produto.caminhoImagemPro
+            },
+                {
+                    new: true
+                }
+            )
+    
+        } catch (error) {
+            console.log(error)
+        }
+        
     }
+
+    
+
+    
     dialog.showMessageBox(products, {
         type: 'info',
         message: 'Dados do produto alterados com sucesso.',
