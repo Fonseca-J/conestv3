@@ -802,7 +802,8 @@ ipcMain.on('new-barcode', async (event, produto) => {
         const novoBarcode = new produtoModel({
             nomeProduto: produto.nomePro,
             barcodeProduto: produto.barcodePro,
-            precoProduto: produto.precoPro
+            precoProduto: produto.precoPro,
+            caminhoImagemProduto: produto.caminhoImagemPro
         })
         // A linha abaixo usa a biblioteca moongoose para salvar
         await novoBarcode.save()
@@ -950,7 +951,8 @@ ipcMain.on('update-product', async (event, produto) => {
             produto.idPro, {
             nomeProduto: produto.nomePro,
             barcodeProduto: produto.barcodePro,
-            precoProduto: produto.precoPro
+            precoProduto: produto.precoPro,
+            caminhoImagemProduto: produto.caminhoImagemPro
         },
             {
                 new: true
