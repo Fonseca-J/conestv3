@@ -535,21 +535,34 @@ ipcMain.on('new-supplier', async (event, fornecedor) => {
             complementoFornecedor: fornecedor.complementoFor,
             telefoneFornecedor: fornecedor.telefoneFor
         })
-        // A linha abaixo usa a biblioteca moongoose para salvar
         await novoFornecedor.save()
-
-        // Confirmação  de cliente  adicionado no banco
         dialog.showMessageBox({
             type: 'info',
             title: 'Aviso',
             message: "Fornecedor Adicionado com Sucesso",
             buttons: ['OK']
+        }).then((result) => {
+            if (result.response === 0) {
+                event.reply('reset-form')
+            }
         })
-        // Enviar uma resposta para o renderizador resetar o formulário
-        event.reply('reset-form')
-
     } catch (error) {
-        console.log(error)
+        //tratamento personalizado em caso de erro
+        //11000 código referente ao erro de campos duplicados no banco (unique)
+        if (error.code = 11000) {
+            dialog.showMessageBox({
+                type: 'error',
+                title: "Atenção!",
+                message: "CNPJ já está cadastrado\nVerifique se digitou corretamente",
+                buttons: ['OK']
+            }).then((result) => {
+                if (result.response === 0) {
+                    //event.reply('')
+                }
+            })
+        } else {
+            console.log(error)
+        }
     }
 })
 // Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
