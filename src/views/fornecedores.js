@@ -7,12 +7,22 @@ const foco = document.getElementById('searchSupplier')
  
 //Mudar as propriedades do documento html ao iniciar a janela
 document.addEventListener('DOMContentLoaded', () => {
-    ///btnCreate.disabled = true
+    // Configurações iniciais
     btnUpdate.disabled = true
     btnDelete.disabled = true
     btnUrl.disabled = true
     foco.focus()
-})  
+})
+
+// Receber a mensagem de CNPJ inválido
+api.cnpjInvalido(() => {
+    document.getElementById('inputCnpjSupplier').classList.add('campo-invalido')
+})
+
+// Remover a borda vermelha ao digitar
+document.getElementById('inputCnpjSupplier').addEventListener('input', () => {
+    document.getElementById('inputCnpjSupplier').classList.remove('campo-invalido')
+})
  
 // Função para manipular o evento da tecla Enter
 function teclaEnter(event) {
@@ -279,20 +289,27 @@ cepFornecedor.addEventListener('blur', async () => {
         }
     }
 })
- 
-//Acessar Site >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 function acessarSite() {
-    let urlFornecedor = document.getElementById('inputSiteSupplier').value
-    //console.log(urlFornecedor) // teste de acesso ao site
-    const url = {
-        url: urlFornecedor
+    let urlFornecedor = document.getElementById('inputSiteSupplier').value.trim()
+    let msgErro = document.getElementById('msgErroSite') // Elemento para exibir o erro
+
+    // Expressão regular para validar URL
+    const urlRegex = /^(https?:\/\/)[\w.-]+\.[a-z]{2,6}(\S*)?$/i
+
+    if (!urlFornecedor || !urlRegex.test(urlFornecedor)) {
+        msgErro.textContent = "URL inválida! Digite um endereço válido (ex: https://exemplo.com)"
+        msgErro.style.color = "red"
+        return
     }
-    // Enviar ao "main" a url do site
-    api.abrirSite(url)
 
+    // Limpar mensagem de erro se a URL for válida
+    msgErro.textContent = ""
 
+    // Se a URL for válida, abrir no navegador
+    api.abrirSite({ url: urlFornecedor })
 }
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 api.resetarFormulario((args) => {
