@@ -1,5 +1,5 @@
 /* input id */
-#idClient {
+#idClient, #idProduct {
     display: none;
 }
  
@@ -61,14 +61,19 @@ input[type=number]::-webkit-inner-spin-button {
 #imageProductPreview {
     border: 1px solid #dfdfdf;
     border-radius: 5px;
-    width: 240px;
-    height: 240px;
+    width: 260px;
+    height: 260px;
+
+    display: block; /* ajuste 16/02 */
+    object-fit: contain; /* ajuste 16/02 */
+   /* object-fit: cover; /* ajuste 16/02 */ 
+
     padding: 5px;
-    position: absolute;
-    top: 55.5vh;
-    left: 43.5vw;
+    position: fixed;
+    right: 45px;
+    bottom: 20px;
     display: block;
-    object-fit: contain;
+    object-fit: contain; /* object-fit: cover; */
 }
  
 #productimgview {
