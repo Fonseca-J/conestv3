@@ -2,10 +2,10 @@
  * Processo de renderização
  * produtos.js
  */
- 
+
 const foco = document.getElementById('searchProduct'); // Campo de busca pelo nome
 const focoBarcode = document.getElementById('searchBarcode'); // Campo de busca pelo barcode
- 
+
 // Mudar as propriedades do documento HTML ao iniciar a janela
 document.addEventListener('DOMContentLoaded', () => {
     // Configurações iniciais
@@ -23,13 +23,13 @@ api.barcodeInvalido(() => {
 document.getElementById('inputBarcodeProduct').addEventListener('input', () => {
     document.getElementById('inputBarcodeProduct').classList.remove('campo-invalido')
 })
- 
+
 // Manipulação do evento Enter para buscar por nome ou barcode
 function teclaEnter(event) {
     if (event.key === "Enter") {
         event.preventDefault(); // Impede o comportamento padrão da tecla Enter
         const valorBusca = focoBarcode.value || foco.value; // Obtém o valor do campo de busca
- 
+
         if (focoBarcode === document.activeElement) {
             buscarProdutoPorBarcode(valorBusca); // Busca por barcode
         } else if (foco === document.activeElement) {
@@ -37,20 +37,20 @@ function teclaEnter(event) {
         }
     }
 }
- 
+
 // Função para remover o manipulador do evento da tecla Enter
 function restaurarEnter() {
     document.getElementById('frmProduct').removeEventListener('keydown', teclaEnter);
     document.getElementById('frmProduct').addEventListener('keydown', teclaEnter); // Reativa o listener
 }
- 
+
 // Manipulando o evento (tecla Enter)
 document.getElementById('frmProduct').addEventListener('keydown', teclaEnter);
- 
+
 // Array usado nos métodos para manipulação da estrutura de dados
 let arrayProduto = [];
 let arrayBarcode = [];
- 
+
 // Passo 1 - Capturar os dados dos inputs do form
 let formProduto = document.getElementById('frmProduct');
 let idProduto = document.getElementById('inputIdProduct');
@@ -59,10 +59,10 @@ let barcodeProduto = document.getElementById('inputBarcodeProduct');
 let precoProduto = document.getElementById('inputPriceProduct');
 let caminhoImagemProduto = document.getElementById('pathImageProduct');
 let imagem = document.getElementById('imageProductPreview');
- 
+
 //variavel usada para armazenar o caminho da imagem
 let caminhoImagem
- 
+
 // CRUD Create/Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // solicitar ao main o uso de explorador de aquivos e armazenar o caminho da imagem selecionada na variável caminhoImagem
 async function uploadImage() {
@@ -71,7 +71,7 @@ async function uploadImage() {
     imagem.src = `file://${caminhoImagem}`
     btnCreate.focus()
 }
- 
+
 formProduto.addEventListener('submit', async (event) => {
     event.preventDefault(); // Evita o comportamento padrão de envio do formulário
 
@@ -98,7 +98,7 @@ formProduto.addEventListener('submit', async (event) => {
     }
 });
 // Fim do CRUD Create/Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
+
 // CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function buscarProduto() {
     let proNome = foco.value;
@@ -121,25 +121,34 @@ function buscarProduto() {
                     document.getElementById('inputBarcodeProduct').value = p.barcodeProduto;
                     document.getElementById('inputPriceProduct').value = p.precoProduto;
 
-                    // Renderizar a imagem do produto (se existir)
-                    if (p.caminhoImagemProduto) {
-                        imagem.src = p.caminhoImagemProduto; // Atualiza o src da imagem
-                    } else {
-                        imagem.src = "../public/img/camera.png"; // Imagem padrão se não houver caminho
+                    if (p.dataCadastro) {
+                        const dataCadastro = new Date(p.dataCadastro);  // Supondo que p.dataCadastro seja um timestamp ou string de data
+                        const dataFormatada = dataCadastro.toLocaleDateString('pt-BR');  // Formata no formato dd/mm/aaaa
+
+                        // Exibir a data formatada no campo de dataCadastro
+                        document.getElementById('inputDataCadastroProduct').value = dataFormatada
+
+
+                        // Renderizar a imagem do produto (se existir)
+                        if (p.caminhoImagemProduto) {
+                            imagem.src = p.caminhoImagemProduto; // Atualiza o src da imagem
+                        } else {
+                            imagem.src = "../public/img/camera.png"; // Imagem padrão se não houver caminho
+                        }
+
+                        // Limpar o campo de busca e remover o foco
+                        foco.value = ""; // Limpa o campo de busca
+                        btnRead.disabled = true;
+                        btnCreate.disabled = true; // Mantém o botão de adicionar desabilitado
+
+                        btnUpdate.disabled = false;
+                        btnDelete.disabled = false;
+                        restaurarEnter();
+
+                        // Desabilitar os campos de busca
+                        desabilitarCamposBusca();
                     }
-
-                    // Limpar o campo de busca e remover o foco
-                    foco.value = ""; // Limpa o campo de busca
-                    btnRead.disabled = true;
-                    btnCreate.disabled = true; // Mantém o botão de adicionar desabilitado
-
-                    btnUpdate.disabled = false;
-                    btnDelete.disabled = false;
-                    restaurarEnter();
-
-                    // Desabilitar os campos de busca
-                    desabilitarCamposBusca();
-                });
+                })
             } else {
                 // Produto não encontrado
                 btnCreate.disabled = false; // Habilita o botão de adicionar
@@ -152,25 +161,25 @@ function buscarProduto() {
         });
     }
 }
- 
- 
+
+
 // Captura o evento para setar o nome do produto
 api.setarNomeProduto((event, nomeProduto) => {
     document.getElementById('inputNameProduct').value = nomeProduto; // Preenche o campo de nome do produto
     document.getElementById('searchProduct').value = ""; // Limpa o campo de busca
     btnCreate.disabled = false; // Habilita o botão de adicionar
- 
+
     // Desabilitar os campos de busca
     desabilitarCamposBusca();
- 
+
     // Colocar o foco no campo de nome do produto
     document.getElementById('inputNameProduct').focus();
 });
- 
- 
+
+
 // Função para buscar produto por barcode
 let isProcessing = false; // Variável para controlar o estado de processamento
- 
+
 function buscarProdutoPorBarcode(barCode) {
     if (isProcessing) return; // Se já estiver processando, ignora
     isProcessing = true; // Marca como processando
@@ -226,27 +235,27 @@ function buscarProdutoPorBarcode(barCode) {
         });
     }
 }
- 
+
 focoBarcode.value = ""; // Limpa o campo de busca
- 
- 
+
+
 // Captura o evento para setar o código de barras
 api.setarBarcode((event, barCode) => {
     document.getElementById('inputBarcodeProduct').value = barCode; // Preenche o campo de código de barras
     document.getElementById('searchBarcode').value = ""; // Limpa o campo de busca
     btnCreate.disabled = false; // Habilita o botão de adicionar
- 
+
     // Desabilitar os campos de busca
     desabilitarCamposBusca();
- 
+
     // Colocar o foco no campo de código de barras
     document.getElementById('inputBarcodeProduct').focus();
 });
- 
- 
+
+
 // Evento de input no campo de barcode para simular o "Enter"
 let timeoutId;
- 
+
 focoBarcode.addEventListener('input', function () {
     clearTimeout(timeoutId); // Limpa o timeout anterior
     timeoutId = setTimeout(() => {
@@ -262,40 +271,40 @@ focoBarcode.addEventListener('input', function () {
         }
     }, 200); // Atraso de 200ms (ajuste conforme necessário)
 });
- 
+
 // CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function excluirProduto() {
     api.deletarProduto(idProduto.value); // Envia o ID do produto para a API
 }
 // Fim do CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
- 
+
+
 // Função para desabilitar os campos de busca
 function desabilitarCamposBusca() {
     document.getElementById('searchProduct').disabled = true; // Desabilita o campo de busca por nome
     document.getElementById('searchBarcode').disabled = true; // Desabilita o campo de busca por barcode
 }
- 
+
 // Função para habilitar os campos de busca
 function habilitarCamposBusca() {
     document.getElementById('searchProduct').disabled = false; // Habilita o campo de busca por nome
     document.getElementById('searchBarcode').disabled = false; // Habilita o campo de busca por barcode
 }
- 
+
 // Função para navegar entre os campos com a tecla Enter
 function navegarComEnter(event) {
     if (event.key === "Enter") {
         event.preventDefault(); // Impede o comportamento padrão do Enter
- 
+
         // Obtém o campo atual
         const campoAtual = event.target;
- 
+
         // Obtém todos os campos do formulário
         const campos = Array.from(document.querySelectorAll('#frmProduct input[required]'));
- 
+
         // Encontra o índice do campo atual
         const indiceAtual = campos.indexOf(campoAtual);
- 
+
         // Se o campo atual for o último, envia o formulário
         if (indiceAtual === campos.length - 1) {
             document.getElementById('frmProduct').dispatchEvent(new Event('submit'));
@@ -305,18 +314,18 @@ function navegarComEnter(event) {
         }
     }
 }
- 
+
 // Adiciona o evento de tecla Enter a todos os campos required
 document.querySelectorAll('#frmProduct input[required]').forEach(campo => {
     campo.addEventListener('keydown', navegarComEnter);
 });
- 
- 
+
+
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 api.resetarFormulario((args) => {
     resetForm();
 });
- 
+
 function resetForm() {
     location.reload(); // Recarrega a página para resetar o formulário
 }
