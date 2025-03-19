@@ -120,6 +120,7 @@ function buscarProduto() {
                     document.getElementById('inputNameProduct').value = p.nomeProduto;
                     document.getElementById('inputBarcodeProduct').value = p.barcodeProduto;
                     document.getElementById('inputPriceProduct').value = p.precoProduto;
+                    document.getElementById('inputDateRegister').value = pp.dataCadastro;
 
                     if (p.dataCadastro) {
                         const dataCadastro = new Date(p.dataCadastro);  // Supondo que p.dataCadastro seja um timestamp ou string de data

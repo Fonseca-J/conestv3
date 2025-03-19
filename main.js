@@ -19,6 +19,9 @@ const produtoModel = require('./src/models/Produtos.js')
 // importar biblioteca nativa do JS para manipulação de arquivos e diretórios
 const fs = require('fs')
 
+// Importar a biblioteca JSPDF (instalar usando npm i JSPDF)
+const { jspf, default: jsPDF } = require('jspdf')
+
 
 // Janela Principal
 let win
@@ -293,7 +296,13 @@ const template = [
         ]
     },
     {
-        label: 'Relatórios'
+        label: 'Relatórios',
+        submenu: [
+            {
+                label: 'Clientes',
+                click: () => gerarRelatorioClientes()
+            }
+        ]
     },
     {
         label: 'Zoom',
@@ -1115,3 +1124,56 @@ ipcMain.on('delete-barcode', async (event, idProduto) => {
 })
 // Fim do CRUD delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+/********************************************/
+/*************** Relatórios ****************/
+/******************************************/
+ 
+// Relatório de clientes
+async function gerarRelatorioClientes() {
+    try {
+        // Listar os clientes ordem alfabética
+        const clientes = await clienteModel.find().sort({nomeCliente: 1})
+        console.log(clientes)
+        // Formatação do docuumento
+        const doc = new jsPDF('p','mm','a4') // p - portrait | l - landscape
+        // Escrever um texto (título)
+        doc.setFontSize(16)
+        // Escrever um texto
+        doc.text("Relatório de clientes", 14, 20)
+        // Data
+        const dataAtual = new Date().toLocaleDateString('pt-BR')
+        doc.text(`Data: ${dataAtual}`, 140, 20)
+        // Variável de apoio para formatação da altura do conteúdo
+        let y = 45
+        doc.text("Nome", 14, y)
+        doc.text("Telefone", 80, y)
+        doc.text("E-mail", 130, y)
+        y += 5
+        // Desenhar uma linha
+        doc.setLineWidth(0.5) // Expessura da linha
+        doc.line(10, y, 200, y) // Inicio, fim
+        y += 10
+        // Renderizar os clientes (vetor)
+        clientes.forEach((c) => {
+            // Se ultrapassar o limite da folha (A4 = 270mm) adicionar outra página
+            if (y > 250) {
+                doc.addPage()
+                y = 20 // Cabeçalho da outra página
+            }
+            doc.text(c.nomeCliente, 14, y)
+            doc.text(c.telefoneCliente, 80, y)
+            doc.text(c.emailCliente || "N/A", 130, y)
+            y += 10 // Quebra de linha
+        })
+ 
+        // Setar o caminho do arquivo temporário
+        const tempDir = app.getPath('temp')
+        const filePath = path.join(tempDir, 'clientes.pdf') // Nome do arquivo
+        // Salvar temporariamente o arquivo
+        doc.save(filePath)
+        // Abrir o arquivo no navegador padrão
+        shell.openPath(filePath)
+    } catch (error) {
+        console.log(error)  
+    }
+}
