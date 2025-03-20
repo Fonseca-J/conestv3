@@ -19,9 +19,8 @@ const produtoModel = require('./src/models/Produtos.js')
 // importar biblioteca nativa do JS para manipulação de arquivos e diretórios
 const fs = require('fs')
 
-// Importar a biblioteca JSPDF (instalar usando npm i JSPDF)
-const { jspf, default: jsPDF } = require('jspdf')
-
+// Importar a biblioteca jspdf (instalar usando npm i jspdf)
+const { jspdf, default: jsPDF } = require('jspdf')
 
 // Janela Principal
 let win
@@ -301,6 +300,16 @@ const template = [
             {
                 label: 'Clientes',
                 click: () => gerarRelatorioClientes()
+            },
+
+            {
+                label: 'Fornecedores',
+                click: () => gerarRelatorioFornecedores()
+            },
+
+            {
+                label: 'Produtos',
+                click: () => gerarRelatorioProdutos()
             }
         ]
     },
@@ -347,12 +356,8 @@ const template = [
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // Recebimento dos dados do formulário do cliente
 ipcMain.on('new-client', async (event, cliente) => {
-    // Teste de recebimento dos dados (Passo 2 - slide) Importante!
-    console.log(cliente)
-
-    // Passo 3 - slide (cadastrar os dados do banco de dados)
     try {
-        // Criar um novo objeto usando a classe modelo
+        // Lógica para criar cliente
         const novoCliente = new clienteModel({
             nomeCliente: cliente.nomeCli,
             dddCliente: cliente.dddCli,
@@ -366,38 +371,33 @@ ipcMain.on('new-client', async (event, cliente) => {
             telefoneCliente: cliente.telefoneCli,
             cpfCliente: cliente.cpfCli,
             complementoCliente: cliente.complementoCli
-        })
-        // A linha abaixo usa a biblioteca moongoose para salvar
-        await novoCliente.save()
+        });
+        await novoCliente.save();
 
-        // Confirmação  de cliente  adicionado no banco
+        // Confirmação de sucesso
         dialog.showMessageBox({
             type: 'info',
             title: 'Aviso',
             message: "Cliente Adicionado com Sucesso",
             buttons: ['OK']
-        })
-        // Enviar uma resposta para o renderizador resetar o formulário
-        event.reply('reset-form')
-
+        });
+        event.reply('reset-form');
     } catch (error) {
-        if (error.code === 11000) {
+        if (error.code === 11000) { // Erro de duplicação no MongoDB
             dialog.showMessageBox({
                 type: 'error',
                 title: 'Atenção!',
                 message: "CPF já cadastrado\nVerifique se digitou corretamente.",
                 buttons: ['OK']
-            }).then((result) => {
-                // Quando o usuário clicar em "OK", enviar uma mensagem ao renderizador para destacar o campo de CPF
-                if (result.response === 0) { // 0 é o índice do botão "OK"
-                    event.reply('cpf-invalido') // Envia uma mensagem ao renderizador
-                }
-            })
+            }).then(() => {
+                // Enviar uma mensagem ao renderizador para focar no campo de CPF
+                event.reply('cpf-invalido');
+            });
         } else {
-            console.log(error)
+            console.log(error);
         }
     }
-})
+});
 // Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -1005,7 +1005,7 @@ ipcMain.on('search-barcode', async (event, barCode) => {
         const dadosBarcode = await produtoModel.find({
             barcodeProduto: new RegExp(barCode, 'i')
         });
-        console.log(dadosBarcode); // teste do passo 3 e 4
+        console.log(dadosBarcode) // teste do passo 3 e 4
         // Passo 5 - slide -> enviar os dados do produto para o renderizador (JSON.stringify converte para JSON)
         // Melhoria na experiência do usuário (se não existir o produto cadastrado, enviar mensagem e questionar se o usário deseja cadastrar um novo produto)
         if (dadosBarcode.length === 0) {
@@ -1015,7 +1015,7 @@ ipcMain.on('search-barcode', async (event, barCode) => {
                 message: 'Barcode não cadastrado.\nDeseja cadastrar este barcode?',
                 buttons: ['Sim', 'Não']
             }).then((result) => {
-                console.log(result);
+                console.log(result)
                 if (result.response === 0) {
                     // Enviar ao renderizador um pedido para setar o código de barras e liberar o botão adicionar
                     event.reply('set-barcode', barCode); // Envia o código de barras para o renderizador
@@ -1028,7 +1028,7 @@ ipcMain.on('search-barcode', async (event, barCode) => {
             event.reply('data-barcode', JSON.stringify(dadosBarcode));
         }
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
 });
 
@@ -1127,7 +1127,7 @@ ipcMain.on('delete-barcode', async (event, idProduto) => {
 /********************************************/
 /*************** Relatórios ****************/
 /******************************************/
- 
+
 // Relatório de clientes
 async function gerarRelatorioClientes() {
     try {
@@ -1165,10 +1165,110 @@ async function gerarRelatorioClientes() {
             doc.text(c.emailCliente || "N/A", 130, y)
             y += 10 // Quebra de linha
         })
- 
+
         // Setar o caminho do arquivo temporário
         const tempDir = app.getPath('temp')
         const filePath = path.join(tempDir, 'clientes.pdf') // Nome do arquivo
+        // Salvar temporariamente o arquivo
+        doc.save(filePath)
+        // Abrir o arquivo no navegador padrão
+        shell.openPath(filePath)
+    } catch (error) {
+        console.log(error)  
+    }
+}
+
+// Relatório de fornecedores
+async function gerarRelatorioFornecedores() {
+    try {
+        // Listar os fornecedores ordem alfabética
+        const fornecedores = await fornecedorModel.find().sort({nomeFornecedor: 1})
+        console.log(fornecedores)
+        // Formatação do docuumento
+        const doc = new jsPDF('p','mm','a4') // p - portrait | l - landscape
+        // Escrever um texto (título)
+        doc.setFontSize(16)
+        // Escrever um texto
+        doc.text("Relatório de fornecedores", 14, 20)
+        // Data
+        const dataAtual = new Date().toLocaleDateString('pt-BR')
+        doc.text(`Data: ${dataAtual}`, 140, 20)
+        // Variável de apoio para formatação da altura do conteúdo
+        let y = 45
+        doc.text("Nome", 14, y)
+        doc.text("Telefone", 80, y)
+        doc.text("E-mail", 130, y)
+        y += 5
+        // Desenhar uma linha
+        doc.setLineWidth(0.5) // Expessura da linha
+        doc.line(10, y, 200, y) // Inicio, fim
+        y += 10
+        // Renderizar os fornecedores (vetor)
+        fornecedores.forEach((c) => {
+            // Se ultrapassar o limite da folha (A4 = 270mm) adicionar outra página
+            if (y > 250) {
+                doc.addPage()
+                y = 20 // Cabeçalho da outra página
+            }
+            doc.text(c.nomeFornecedor, 14, y)
+            doc.text(c.telefoneFornecedor, 80, y)
+            doc.text(c.siteFornecedor || "N/A", 130, y)
+            y += 10 // Quebra de linha
+        })
+
+        // Setar o caminho do arquivo temporário
+        const tempDir = app.getPath('temp')
+        const filePath = path.join(tempDir, 'fornecedores.pdf') // Nome do arquivo
+        // Salvar temporariamente o arquivo
+        doc.save(filePath)
+        // Abrir o arquivo no navegador padrão
+        shell.openPath(filePath)
+    } catch (error) {
+        console.log(error)  
+    }
+}
+
+// Relatório de produtos
+async function gerarRelatorioProdutos() {
+    try {
+        // Listar os produtos ordem alfabética
+        const produtos = await produtoModel.find().sort({nomeProduto: 1})
+        console.log(produtos)
+        // Formatação do docuumento
+        const doc = new jsPDF('p','mm','a4') // p - portrait | l - landscape
+        // Escrever um texto (título)
+        doc.setFontSize(16)
+        // Escrever um texto
+        doc.text("Relatório de produtos", 14, 20)
+        // Data
+        const dataAtual = new Date().toLocaleDateString('pt-BR')
+        doc.text(`Data: ${dataAtual}`, 140, 20)
+        // Variável de apoio para formatação da altura do conteúdo
+        let y = 45
+        doc.text("Nome", 14, y)
+        doc.text("Barcode", 80, y)
+        doc.text("Preço", 130, y)
+        y += 5
+        // Desenhar uma linha
+        doc.setLineWidth(0.5) // Expessura da linha
+        doc.line(10, y, 200, y) // Inicio, fim
+        y += 10
+        // Renderizar os produtos (vetor)
+        produtos.forEach((c) => {
+            // Se ultrapassar o limite da folha (A4 = 270mm) adicionar outra página
+            if (y > 250) {
+                doc.addPage()
+                y = 20 // Cabeçalho da outra página
+            }
+            doc.text(c.nomeProduto, 14, y)
+            doc.text(c.barcodeProduto, 80, y)
+            doc.text(c.precoProduto || "N/A", 130, y)
+            y += 10 // Quebra de linha
+        })
+
+        // Setar o caminho do arquivo temporário
+        const tempDir = app.getPath('temp')
+        const filePath = path.join(tempDir, 'produtos.pdf') // Nome do arquivo
         // Salvar temporariamente o arquivo
         doc.save(filePath)
         // Abrir o arquivo no navegador padrão
