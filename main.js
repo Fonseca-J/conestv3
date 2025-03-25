@@ -19,7 +19,7 @@ const produtoModel = require('./src/models/Produtos.js')
 // importar biblioteca nativa do JS para manipulação de arquivos e diretórios
 const fs = require('fs')
 
-// Importar a biblioteca jspdf (instalar usando npm i jspdf)
+// importar a biblioteca jspdf (instalar usando npm i jspdf)
 const { jspdf, default: jsPDF } = require('jspdf')
 
 // Janela Principal
@@ -65,8 +65,8 @@ function aboutWindow() {
     let about
     if (main) {
         about = new BrowserWindow({
-            width: 1100,
-            height: 800,
+            width: 380,
+            height: 250,
             autoHideMenuBar: true,
             resizable: false,
             minimizable: false,
@@ -97,8 +97,8 @@ function clientWindow() {
     const main = BrowserWindow.getFocusedWindow()
     if (main) {
         client = new BrowserWindow({
-            width: 1100,
-            height: 800,
+            width: 1100, //largura
+            height: 800, //altura
             autoHideMenuBar: true, //menu dev
             resizable: true,
             minimizable: true,
@@ -112,15 +112,6 @@ function clientWindow() {
     }
 
     client.loadFile('./src/views/clientes.html')
-
-    //client.once('ready-to-show', () => {
-    // dialog.showMessageBox(client, {
-    // type: 'info',
-    // title: 'Aviso',
-    // message: 'Pesquise um cliente antes de continuar',
-    //  buttons: ['OK']
-    // })
-    //})
 }
 
 // Janela Fornecedores
@@ -145,15 +136,6 @@ function supplierWindow() {
     }
 
     supplier.loadFile('./src/views/fornecedores.html')
-
-    //supplier.once('ready-to-show', () => {
-    // dialog.showMessageBox(supplier, {
-    //   type: 'info',
-    // title: 'Aviso',
-    //  message: 'Pesquise um forncedor antes de continuar',
-    //  buttons: ['OK']
-    // })
-    //})
 }
 
 // Janela Produtos
@@ -178,15 +160,6 @@ function productsWindow() {
     }
 
     products.loadFile('./src/views/produtos.html')
-
-    // products.once('ready-to-show', () => {
-    // dialog.showMessageBox(products, {
-    // type: 'info',
-    // title: 'Aviso',
-    // message: 'Pesquise um produto antes de continuar',
-    // buttons: ['OK']
-    // })
-    //})
 }
 
 // Janela Relatórios
@@ -239,9 +212,10 @@ app.whenReady().then(() => {
         // a linha abaixo estabelece a conexão com o banco
         dbcon = await dbConnect()
         // enviar ao renderizador uma mensagem para trocar o ícone do status do banco de dados
+        //delay de 0,5 Seg para sincronizar
         setTimeout(() => {
             event.reply('db-message', "conectado")
-        }, 500)
+        }, 500) //1000ms = 1s
     })
 
     // desconectar do banco de dados ao encerrar a aplicação
@@ -301,44 +275,22 @@ const template = [
                 label: 'Clientes',
                 click: () => gerarRelatorioClientes()
             },
-
             {
                 label: 'Fornecedores',
                 click: () => gerarRelatorioFornecedores()
             },
-
             {
                 label: 'Produtos',
                 click: () => gerarRelatorioProdutos()
-            }
-        ]
-    },
-    {
-        label: 'Zoom',
-        submenu: [
-            {
-                label: 'Aplicar zoom',
-                role: 'zoomIn'
-            },
-
-            {
-                label: 'Reduzir',
-                role: 'zoomOut'
-            },
-
-            {
-                label: 'Restaurar o zoom padrão',
-                role: 'resetZoom'
             },
         ]
     },
-
     {
         label: 'Ajuda',
         submenu: [
             {
                 label: 'Repositório',
-                click: () => shell.openExternal('https://github.com/LeoMeloLeo')
+                click: () => shell.openExternal('https://github.com/andrewdantas/conestv3')
             },
 
             {
@@ -350,14 +302,34 @@ const template = [
 ]
 
 /****************************************/
+/*************** Validação *************/
+/**************************************/
+
+// CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// CAMPO DE BUSCA (MENSAGEM 3X "Preencha um nome no campo de busca")
+ipcMain.on('dialog-search', () => {
+    dialog.showMessageBox({
+        type: 'warning',
+        title: 'Atenção!',
+        message: 'Preencha o campo de busca',
+        buttons: ['OK']
+    })
+})
+
+
+/****************************************/
 /*************** Clientes **************/
 /**************************************/
 
 // CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // Recebimento dos dados do formulário do cliente
 ipcMain.on('new-client', async (event, cliente) => {
+    // Teste de recebimento dos dados (Passo 2 - slide) Importante!
+    console.log(cliente)
+
+    // Passo 3 - slide (cadastrar os dados do banco de dados)
     try {
-        // Lógica para criar cliente
+        // Criar um novo objeto usando a classe modelo
         const novoCliente = new clienteModel({
             nomeCliente: cliente.nomeCli,
             dddCliente: cliente.dddCli,
@@ -371,47 +343,43 @@ ipcMain.on('new-client', async (event, cliente) => {
             telefoneCliente: cliente.telefoneCli,
             cpfCliente: cliente.cpfCli,
             complementoCliente: cliente.complementoCli
-        });
-        await novoCliente.save();
+        })
+        // A linha abaixo usa a biblioteca moongoose para salvar
+        await novoCliente.save()
 
-        // Confirmação de sucesso
+        // Confirmação  de cliente  adicionado no banco
         dialog.showMessageBox({
             type: 'info',
             title: 'Aviso',
             message: "Cliente Adicionado com Sucesso",
             buttons: ['OK']
-        });
-        event.reply('reset-form');
+        })
+        // Enviar uma resposta para o renderizador resetar o formulário
+        event.reply('reset-form')
+
     } catch (error) {
-        if (error.code === 11000) { // Erro de duplicação no MongoDB
+        //tratamento personalizado em caso de erro
+        //11000 é o código referente ao erro de campos duplicados no banco de dados (unique)
+        if (error.code = 11000) {
             dialog.showMessageBox({
                 type: 'error',
                 title: 'Atenção!',
-                message: "CPF já cadastrado\nVerifique se digitou corretamente.",
+                message: "O CPF já esta cadastrado\nVerfique se digitou corretamente",
                 buttons: ['OK']
-            }).then(() => {
-                // Enviar uma mensagem ao renderizador para focar no campo de CPF
-                event.reply('cpf-invalido');
-            });
+            }).then((result) => {
+                if (result.response === 0) {
+                    event.reply('clear-cpf') // Novo evento para limpar e focar o CPF
+                }
+            })
         } else {
-            console.log(error);
+            console.log(error)
         }
     }
-});
+
+})
 // Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-
-// CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// CAMPO DE BUSCA (MENSAGEM 3X "Preencha um nome no campo de busca")
-ipcMain.on('dialog-search', () => {
-    dialog.showMessageBox({
-        type: 'warning',
-        title: 'Atenção!',
-        message: 'Preencha um nome no campo de busca',
-        buttons: ['OK']
-    })
-})
-
+// CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ipcMain.on('search-client', async (event, cliNome) => {
     // teste de recebimento do nome do cliente a ser pesquisado (passo 2)
     console.log(cliNome)
@@ -452,55 +420,59 @@ ipcMain.on('search-client', async (event, cliNome) => {
 
 // CRUD Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ipcMain.on('update-client', async (event, cliente) => {
-    // teste de recebimento dos dados do cliente ( passo 2 )
-    console.log(cliente)
+    // Teste de recebimento dos dados (passo 2)
+    console.log(cliente);
+
     try {
         const clienteEditado = await clienteModel.findByIdAndUpdate(
             cliente.idCli, {
-            nomeCliente: cliente.nomeCli,
-            dddCliente: cliente.dddCli,
-            emailCliente: cliente.emailCli,
-            cepCliente: cliente.cepCli,
-            logradouroCliente: cliente.logradouroCli,
-            numeroCliente: cliente.numeroCli,
-            bairroCliente: cliente.bairroCli,
-            cidadeCliente: cliente.cidadeCli,
-            ufCliente: cliente.ufCli,
-            telefoneCliente: cliente.telefoneCli,
-            cpfCliente: cliente.cpfCli,
-            complementoCliente: cliente.complementoCli
-        },
+                nomeCliente: cliente.nomeCli,
+                dddCliente: cliente.dddCli,
+                emailCliente: cliente.emailCli,
+                cepCliente: cliente.cepCli,
+                logradouroCliente: cliente.logradouroCli,
+                numeroCliente: cliente.numeroCli,
+                bairroCliente: cliente.bairroCli,
+                cidadeCliente: cliente.cidadeCli,
+                ufCliente: cliente.ufCli,
+                telefoneCliente: cliente.telefoneCli,
+                cpfCliente: cliente.cpfCli,
+                complementoCliente: cliente.complementoCli
+            },
             {
                 new: true
             }
-        )
+        );
+
+        // Confirmação de sucesso
         dialog.showMessageBox(client, {
             type: 'info',
             message: 'Dados do cliente alterados com sucesso.',
             buttons: ['OK']
         }).then((result) => {
             if (result.response === 0) {
-                event.reply('reset-form')
+                event.reply('reset-form'); // Resetar o formulário após a edição
             }
+        });
 
-        })
     } catch (error) {
-        if (error.code === 11000) { // Erro de duplicação no MongoDB
+        // Tratamento de erro para CPF duplicado
+        if (error.code === 11000) {
             dialog.showMessageBox({
                 type: 'error',
                 title: 'Atenção!',
-                message: "CPF já cadastrado. Verifique se digitou corretamente.",
+                message: "O CPF já está cadastrado\nVerifique se digitou corretamente",
                 buttons: ['OK']
             }).then((result) => {
-                if (result.response === 0) { // Se o usuário clicar em "OK"
-                    event.reply('cpf-invalido'); // Envia mensagem ao frontend
+                if (result.response === 0) {
+                    event.reply('clear-cpf'); // Enviar mensagem para limpar e destacar o campo CPF
                 }
             });
         } else {
             console.log(error); // Outros erros
         }
     }
-})
+});
 // Fim do CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -551,7 +523,7 @@ ipcMain.on('url-site', (event, site) => {
 // Recebimento dos dados do formulário do fornecedor
 ipcMain.on('new-supplier', async (event, fornecedor) => {
     // Teste de recebimento dos dados (Passo 2 - slide) Importante!
-    console.log(fornecedor)
+    console.log(fornecedor);
 
     // Passo 3 - slide (cadastrar os dados do banco de dados)
     try {
@@ -569,38 +541,40 @@ ipcMain.on('new-supplier', async (event, fornecedor) => {
             cpnjFornecedor: fornecedor.cnpjFor,
             complementoFornecedor: fornecedor.complementoFor,
             telefoneFornecedor: fornecedor.telefoneFor
-        })
-        // A linha abaixo usa a biblioteca moongoose para salvar
-        await novoFornecedor.save()
+        });
 
-        // Confirmação  de cliente  adicionado no banco
+        // A linha abaixo usa a biblioteca mongoose para salvar
+        await novoFornecedor.save();
+
+        // Confirmação de fornecedor adicionado no banco
         dialog.showMessageBox({
             type: 'info',
             title: 'Aviso',
             message: "Fornecedor Adicionado com Sucesso",
             buttons: ['OK']
-        })
+        });
+
         // Enviar uma resposta para o renderizador resetar o formulário
-        event.reply('reset-form')
+        event.reply('reset-form');
 
     } catch (error) {
+        // Tratamento de erro para CNPJ duplicado
         if (error.code === 11000) {
             dialog.showMessageBox({
                 type: 'error',
                 title: 'Atenção!',
-                message: "CNPJ já cadastrado\nVerifique se digitou corretamente.",
+                message: "O CNPJ já está cadastrado\nVerifique se digitou corretamente",
                 buttons: ['OK']
             }).then((result) => {
-                // Quando o usuário clicar em "OK", enviar uma mensagem ao renderizador para destacar o campo de CNPJ
-                if (result.response === 0) { // 0 é o índice do botão "OK"
-                    event.reply('cnpj-invalido') // Envia uma mensagem ao renderizador
+                if (result.response === 0) {
+                    event.reply('clear-cnpj'); // Enviar mensagem para limpar e destacar o campo CNPJ
                 }
-            })
+            });
         } else {
-            console.log(error)
+            console.log(error); // Outros erros
         }
     }
-})
+});
 // Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -646,55 +620,59 @@ ipcMain.on('search-supplier', async (event, forNome) => {
 
 // CRUD Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ipcMain.on('update-supplier', async (event, fornecedor) => {
-    // teste de recebimento dos dados do fornecedor ( passo 2 )
-    console.log(fornecedor)
+    // Teste de recebimento dos dados (passo 2)
+    console.log(fornecedor);
+
     try {
         const fornecedorEditado = await fornecedorModel.findByIdAndUpdate(
             fornecedor.idFor, {
-            nomeFornecedor: fornecedor.nomeFor,
-            dddFornecedor: fornecedor.dddFor,
-            siteFornecedor: fornecedor.siteFor,
-            cepFornecedor: fornecedor.cepFor,
-            logradouroFornecedor: fornecedor.logradouroFor,
-            numeroFornecedor: fornecedor.numeroFor,
-            bairroFornecedor: fornecedor.bairroFor,
-            cidadeFornecedor: fornecedor.cidadeFor,
-            ufFornecedor: fornecedor.ufFor,
-            cpnjFornecedor: fornecedor.cnpjFor,
-            complementoFornecedor: fornecedor.complementoFor,
-            telefoneFornecedor: fornecedor.telefoneFor
-        },
+                nomeFornecedor: fornecedor.nomeFor,
+                dddFornecedor: fornecedor.dddFor,
+                siteFornecedor: fornecedor.siteFor,
+                cepFornecedor: fornecedor.cepFor,
+                logradouroFornecedor: fornecedor.logradouroFor,
+                numeroFornecedor: fornecedor.numeroFor,
+                bairroFornecedor: fornecedor.bairroFor,
+                cidadeFornecedor: fornecedor.cidadeFor,
+                ufFornecedor: fornecedor.ufFor,
+                cpnjFornecedor: fornecedor.cnpjFor,
+                complementoFornecedor: fornecedor.complementoFor,
+                telefoneFornecedor: fornecedor.telefoneFor
+            },
             {
                 new: true
             }
-        )
+        );
 
+        // Confirmação de sucesso
         dialog.showMessageBox(supplier, {
             type: 'info',
             message: 'Dados do fornecedor alterados com sucesso.',
             buttons: ['OK']
         }).then((result) => {
             if (result.response === 0) {
-                event.reply('reset-form')
+                event.reply('reset-form'); // Resetar o formulário após a edição
             }
-        })
+        });
+
     } catch (error) {
-        if (error.code === 11000) { // Erro de duplicação no MongoDB
+        // Tratamento de erro para CNPJ duplicado
+        if (error.code === 11000) {
             dialog.showMessageBox({
                 type: 'error',
                 title: 'Atenção!',
-                message: "CNPJ já cadastrado. Verifique se digitou corretamente.",
+                message: "O CNPJ já está cadastrado\nVerifique se digitou corretamente",
                 buttons: ['OK']
             }).then((result) => {
-                if (result.response === 0) { // Se o usuário clicar em "OK"
-                    event.reply('cnpj-invalido'); // Envia mensagem ao frontend
+                if (result.response === 0) {
+                    event.reply('clear-cnpj'); // Enviar mensagem para limpar e destacar o campo CNPJ
                 }
             });
         } else {
             console.log(error); // Outros erros
         }
     }
-})
+});
 // Fim do CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -757,163 +735,78 @@ ipcMain.handle('open-file-dialog', async () => {
 
 })
 
-
-
 // Recebimento dos dados do formulário do produto
 ipcMain.on('new-product', async (event, produto) => {
     // Teste de recebimento dos dados (Passo 2 - slide) Importante!
-    console.log(produto)
+    console.log(produto);
 
-    //resolusão de BUG (quando a imagem não for selecionada)
-    let caminhoImagemSalvo = ""
+    // Resolução de BUG (quando a imagem não for selecionada)
+    let caminhoImagemSalvo = "";
 
     try {
         // Validação de imagens
         if (produto.caminhoImagemPro) {
-            //================ (imagens #1)
             // Criar a pasta uploads se não existir
-            //__dirname (caminho absoluto)
-            const uploadDir = path.join(__dirname, 'uploads')
+            const uploadDir = path.join(__dirname, 'uploads');
             if (!fs.existsSync(uploadDir)) {
-                fs.mkdirSync(uploadDir)
+                fs.mkdirSync(uploadDir);
             }
 
-            //================ (imagens #2)
             // Gerar um nome único para o arquivo (para não sobrescrever)
-            const fileName = `${Date.now()}_${path.basename(produto.caminhoImagemPro)}`
-            //console.log(fileName) //apoio a logica
-            const uploads = path.join(uploadDir, fileName)
+            const fileName = `${Date.now()}_${path.basename(produto.caminhoImagemPro)}`;
+            const uploads = path.join(uploadDir, fileName);
 
-            //================ (imagens #3)
-            //Copiar o arquivo de imagem para a pasta uploads
-            fs.copyFileSync(produto.caminhoImagemPro, uploads)
+            // Copiar o arquivo de imagem para a pasta uploads
+            fs.copyFileSync(produto.caminhoImagemPro, uploads);
 
-            //================ (imagens #4)
-            // alterar a variável caminhoImagemSalvo para uploads
-            caminhoImagemSalvo = uploads
+            // Alterar a variável caminhoImagemSalvo para uploads
+            caminhoImagemSalvo = uploads;
         }
+
         // Cadastrar o produto no banco de dados
         const novoProduto = new produtoModel({
             nomeProduto: produto.nomePro,
             barcodeProduto: produto.barcodePro,
             precoProduto: produto.precoPro,
-            caminhoImagemProduto: caminhoImagemSalvo //salvando o caminho correto no banco
-        })
+            fornecedorProduto: produto.fornecedorPro,
+            quantidadeProduto: produto.quantidadePro,
+            unidadeProduto: produto.unidadePro,
+            localProduto: produto.localPro,
+            caminhoImagemProduto: caminhoImagemSalvo // Salvando o caminho correto no banco
+        });
 
-        //adicionar produto no banco
-        await novoProduto.save()
+        // Adicionar produto no banco
+        await novoProduto.save();
 
-        //confirmação
+        // Confirmação
         dialog.showMessageBox({
             type: 'info',
             message: "Produto Adicionado com Sucesso",
             buttons: ['OK']
         }).then((result) => {
             if (result.response === 0) {
-                event.reply('reset-form')
+                event.reply('reset-form'); // Resetar o formulário após o cadastro
             }
-        })
-
+        });
 
     } catch (error) {
+        // Tratamento de erro para barcode duplicado
         if (error.code === 11000) {
             dialog.showMessageBox({
                 type: 'error',
                 title: 'Atenção!',
-                message: "Barcode já cadastrado\nVerifique se digitou corretamente.",
+                message: "O Barcode já está cadastrado\nVerifique se digitou corretamente",
                 buttons: ['OK']
             }).then((result) => {
-                // Quando o usuário clicar em "OK", enviar uma mensagem ao renderizador para destacar o campo de barcode
-                if (result.response === 0) { // 0 é o índice do botão "OK"
-                    event.reply('barcode-invalido') // Envia uma mensagem ao renderizador
+                if (result.response === 0) {
+                    event.reply('clear-barcode'); // Enviar mensagem para limpar e destacar o campo barcode
                 }
-            })
+            });
         } else {
-            console.log(error)
+            console.log(error); // Outros erros
         }
     }
-
-    /*
-    // Passo 3 - slide (cadastrar os dados do banco de dados)
-    try {
-        // Criar um novo objeto usando a classe modelo
-        const novoProduto = new produtoModel({
-            nomeProduto: produto.nomePro,
-            barcodeProduto: produto.barcodePro,
-            precoProduto: produto.precoPro
-        })
-        // A linha abaixo usa a biblioteca moongoose para salvar
-        await novoProduto.save()
-
-        // Confirmação  de cliente  adicionado no banco
-        dialog.showMessageBox({
-            type: 'info',
-            title: 'Aviso',
-            message: "Produto Adicionado com Sucesso",
-            buttons: ['OK']
-        }).then((result) => {
-            if (result.response === 0) {
-                event.reply('reset-form')
-            }
-        })
-        // Enviar uma resposta para o renderizador resetar o formulário
-        //event.reply('reset-form')
-
-    } catch (error) {
-        console.log(error)
-    }*/
-})
-// Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-
-//BARCODE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// Recebimento dos dados do formulário do produto
-ipcMain.on('new-barcode', async (event, produto) => {
-    // Teste de recebimento dos dados (Passo 2 - slide) Importante!
-    console.log(produto)
-
-    // Passo 3 - slide (cadastrar os dados do banco de dados)
-    try {
-        // Criar um novo objeto usando a classe modelo
-        const novoBarcode = new produtoModel({
-            nomeProduto: produto.nomePro,
-            barcodeProduto: produto.barcodePro,
-            precoProduto: produto.precoPro,
-            caminhoImagemProduto: produto.caminhoImagemPro
-        })
-        // A linha abaixo usa a biblioteca moongoose para salvar
-        await novoBarcode.save()
-
-        // Confirmação  de cliente  adicionado no banco
-        dialog.showMessageBox({
-            type: 'info',
-            title: 'Aviso',
-            message: "Produto Adicionado com Sucesso",
-            buttons: ['OK']
-        })
-        // Enviar uma resposta para o renderizador resetar o formulário
-        event.reply('reset-form')
-
-    } catch (error) {
-        if (error.code === 11000) {
-            dialog.showMessageBox({
-                type: 'error',
-                title: 'Atenção!',
-                message: "Barcode já cadastrado\nVerifique se digitou corretamente.",
-                buttons: ['OK']
-            }).then((result) => {
-                // Quando o usuário clicar em "OK", enviar uma mensagem ao renderizador para destacar o campo de barcode
-                if (result.response === 0) { // 0 é o índice do botão "OK"
-                    event.reply('barcode-invalido') // Envia uma mensagem ao renderizador
-                }
-            })
-        } else {
-            console.log(error)
-        }
-    }
-})
+});
 // Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // CRUD Read - Nome produto >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -988,10 +881,151 @@ ipcMain.on('delete-product', async (event, idProduto) => {
 })
 // Fim do CRUD delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+// CRUD Update produtos>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ipcMain.on('update-product', async (event, produto) => {
+    // Teste de recebimento dos dados (passo 2)
+    console.log(produto);
+
+    // Correção de bug com relação ao caminho da imagem
+    // Estratégia: se o usuário não trocou a imagem, editar apenas os campos
+    if (produto.caminhoImagemPro === "") {
+        try {
+            const produtoEditado = await produtoModel.findByIdAndUpdate(
+                produto.idPro, {
+                    nomeProduto: produto.nomePro,
+                    barcodeProduto: produto.barcodePro,
+                    precoProduto: produto.precoPro,
+                    fornecedorProduto: produto.fornecedorPro,
+                    quantidadeProduto: produto.quantidadePro,
+                    unidadeProduto: produto.unidadePro,
+                    localProduto: produto.localPro,
+                    // caminhoImagemProduto: caminhoImagemSalvo // Salvando o caminho correto no banco
+                },
+                {
+                    new: true
+                }
+            );
+
+            // Confirmação de sucesso
+            dialog.showMessageBox(products, {
+                type: 'info',
+                message: 'Dados do produto alterados com sucesso.',
+                buttons: ['OK']
+            }).then((result) => {
+                if (result.response === 0) {
+                    event.reply('reset-form'); // Resetar o formulário após a edição
+                }
+            });
+
+        } catch (error) {
+            // Tratamento de erro para barcode duplicado
+            if (error.code === 11000) {
+                dialog.showMessageBox({
+                    type: 'error',
+                    title: 'Atenção!',
+                    message: "O Barcode já está cadastrado\nVerifique se digitou corretamente",
+                    buttons: ['OK']
+                }).then((result) => {
+                    if (result.response === 0) {
+                        event.reply('clear-barcode'); // Enviar mensagem para limpar e destacar o campo barcode
+                    }
+                });
+            } else {
+                console.log(error); // Outros erros
+            }
+        }
+    } else {
+        try {
+            const produtoEditado = await produtoModel.findByIdAndUpdate(
+                produto.idPro, {
+                    nomeProduto: produto.nomePro,
+                    barcodeProduto: produto.barcodePro,
+                    precoProduto: produto.precoPro,
+                    caminhoImagemProduto: produto.caminhoImagemPro,
+                    fornecedorProduto: produto.fornecedorPro,
+                    quantidadeProduto: produto.quantidadePro,
+                    unidadeProduto: produto.unidadePro,
+                    localProduto: produto.localPro,
+                },
+                {
+                    new: true
+                }
+            );
+
+            // Confirmação de sucesso
+            dialog.showMessageBox(products, {
+                type: 'info',
+                message: 'Dados do produto alterados com sucesso.',
+                buttons: ['OK']
+            }).then((result) => {
+                if (result.response === 0) {
+                    event.reply('reset-form'); // Resetar o formulário após a edição
+                }
+            });
+
+        } catch (error) {
+            // Tratamento de erro para barcode duplicado
+            if (error.code === 11000) {
+                dialog.showMessageBox({
+                    type: 'error',
+                    title: 'Atenção!',
+                    message: "O Barcode já está cadastrado\nVerifique se digitou corretamente",
+                    buttons: ['OK']
+                }).then((result) => {
+                    if (result.response === 0) {
+                        event.reply('clear-barcode'); // Enviar mensagem para limpar e destacar o campo barcode
+                    }
+                });
+            } else {
+                console.log(error); // Outros erros
+            }
+        }
+    }
+});
+// Fim do CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 //***************************BARCODE********************************/
-//**************************************************************** */
-//>>>>>>>>>>>>>>>>>BARCODE - DELETE - UPDATE>>>>>>>>>>>>>>>>>>>>>>>*/
+//****************************CRUD**********************************/
+//>>>>>>>>>>>>>>>>>>>>>>>READ UPDATE CREATE>>>>>>>>>>>>>>>>>>>>>>>>*/
+
+
+// CRUD Create >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// Recebimento dos dados do formulário do produto
+ipcMain.on('new-barcode', async (event, produto) => {
+    // Teste de recebimento dos dados (Passo 2 - slide) Importante!
+    console.log(produto)
+
+    // Passo 3 - slide (cadastrar os dados do banco de dados)
+    try {
+        // Criar um novo objeto usando a classe modelo
+        const novoBarcode = new produtoModel({
+            nomeProduto: produto.nomePro,
+            barcodeProduto: produto.barcodePro,
+            precoProduto: produto.precoPro,
+            fornecedorProduto: produto.fornecedorPro,
+            quantidadeProduto: produto.quantidadePro,
+            unidadeProduto: produto.unidadePro,
+            localProduto: produto.localPro,
+            caminhoImagemProduto: caminhoImagemSalvo //salvando o caminho correto no banco
+        })
+        // A linha abaixo usa a biblioteca moongoose para salvar
+        await novoBarcode.save()
+
+        // Confirmação  de produto adicionado no banco
+        dialog.showMessageBox({
+            type: 'info',
+            title: 'Aviso',
+            message: "Barcode Adicionado com Sucesso",
+            buttons: ['OK']
+        })
+        // Enviar uma resposta para o renderizador resetar o formulário
+        event.reply('reset-form')
+
+    } catch (error) {
+        console.log(error)
+    }
+})
+// Fim CRUD Create <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 // CRUD Read Barcode >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ipcMain.on('search-barcode', async (event, barCode) => {
@@ -1005,7 +1039,7 @@ ipcMain.on('search-barcode', async (event, barCode) => {
         const dadosBarcode = await produtoModel.find({
             barcodeProduto: new RegExp(barCode, 'i')
         });
-        console.log(dadosBarcode) // teste do passo 3 e 4
+        console.log(dadosBarcode); // teste do passo 3 e 4
         // Passo 5 - slide -> enviar os dados do produto para o renderizador (JSON.stringify converte para JSON)
         // Melhoria na experiência do usuário (se não existir o produto cadastrado, enviar mensagem e questionar se o usário deseja cadastrar um novo produto)
         if (dadosBarcode.length === 0) {
@@ -1013,9 +1047,10 @@ ipcMain.on('search-barcode', async (event, barCode) => {
                 type: 'warning',
                 title: 'Barcode',
                 message: 'Barcode não cadastrado.\nDeseja cadastrar este barcode?',
+                defaultId: 0, //nova linha
                 buttons: ['Sim', 'Não']
             }).then((result) => {
-                console.log(result)
+                console.log(result);
                 if (result.response === 0) {
                     // Enviar ao renderizador um pedido para setar o código de barras e liberar o botão adicionar
                     event.reply('set-barcode', barCode); // Envia o código de barras para o renderizador
@@ -1028,252 +1063,185 @@ ipcMain.on('search-barcode', async (event, barCode) => {
             event.reply('data-barcode', JSON.stringify(dadosBarcode));
         }
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 });
 
-// Fim CRUD Read Barcode <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-// CRUD Update BARCODE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-ipcMain.on('update-product', async (event, produto) => {
-    console.log(produto); // Verifique os dados recebidos
-
-    try {
-        if (produto.caminhoImagemPro === "") {
-            // Atualiza o produto sem alterar o caminho da imagem
-            const produtoEditado = await produtoModel.findByIdAndUpdate(
-                produto.idPro, {
-                    nomeProduto: produto.nomePro,
-                    barcodeProduto: produto.barcodePro,
-                    precoProduto: produto.precoPro,
-                },
-                { new: true }
-            )
-        } else {
-            // Atualiza o produto com o novo caminho da imagem
-            const produtoEditado = await produtoModel.findByIdAndUpdate(
-                produto.idPro, {
-                    nomeProduto: produto.nomePro,
-                    barcodeProduto: produto.barcodePro,
-                    precoProduto: produto.precoPro,
-                    caminhoImagemProduto: produto.caminhoImagemPro
-                },
-                { new: true }
-            )
-        }
-
-        // Confirmação de sucesso
-        dialog.showMessageBox(products, {
-            type: 'info',
-            message: 'Dados do produto alterados com sucesso.',
-            buttons: ['OK']
-        }).then((result) => {
-            if (result.response === 0) {
-                event.reply('reset-form'); // Reseta o formulário no frontend
-            }
-        })
-    } catch (error) {
-        if (error.code === 11000) { // Erro de duplicação no MongoDB
-            dialog.showMessageBox({
-                type: 'error',
-                title: 'Atenção!',
-                message: "Barcode já cadastrado. Verifique se digitou corretamente.",
-                buttons: ['OK']
-            }).then((result) => {
-                if (result.response === 0) { // Se o usuário clicar em "OK"
-                    event.reply('barcode-invalido'); // Envia mensagem ao frontend
-                }
-            })
-        } else {
-            console.log(error); // Outros erros
-        }
-    }
-})
-// Fim do CRUD Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// Fim CRUD Read Barcode <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-// CRUD Delete - Nome produto <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-ipcMain.on('delete-barcode', async (event, idProduto) => {
-    //Teste de recebimento do id do Produto (passo 2 do slide)
-    console.log(idProduto)
-    // Confirmação antes de excluir o Produto *IMPORTANTE*
-    // "products" é a variável ref a janela de produtos
-    const { response } = await dialog.showMessageBox(products, {
-        type: 'warning',
-        buttons: ['Cancelar', 'Excluir'], //[0,1]
-        title: 'Atenção!',
-        message: 'Tem certeza que deseja excluir esse produto?'
-    })
-    // apoio a lógica
-    console.log(response)
-    if (response === 1) {
-        // Passo 3 slide
-        try {
-            const barcodeExcluido = await produtoModel.findByIdAndDelete(idProduto)
-            dialog.showMessageBox({
-                type: 'info',
-                title: 'Aviso',
-                message: 'Produto excluído com sucesso!!!',
-                buttons: ['OK']
-            })
-            event.reply('reset-form')
-        } catch (error) {
-
-        }
-    }
-})
-// Fim do CRUD delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 /********************************************/
-/*************** Relatórios ****************/
+/*************** Relatorios ****************/
 /******************************************/
 
 // Relatório de clientes
 async function gerarRelatorioClientes() {
     try {
-        // Listar os clientes ordem alfabética
+        //listar os clientes por ordem alfabética
         const clientes = await clienteModel.find().sort({nomeCliente: 1})
         console.log(clientes)
-        // Formatação do docuumento
-        const doc = new jsPDF('p','mm','a4') // p - portrait | l - landscape
-        // Escrever um texto (título)
+        //formatação do documento
+        const doc = new jsPDF('p', 'mm', 'a4') //p:portrait e l:landscape
+        //tamanho da fonte
         doc.setFontSize(16)
-        // Escrever um texto
-        doc.text("Relatório de clientes", 14, 20)
-        // Data
+        //escrever um texto (título)
+        doc.text("Relatório de clientes", 14, 20) //x, y (mm)
+        //Data
         const dataAtual = new Date().toLocaleDateString('pt-BR')
-        doc.text(`Data: ${dataAtual}`, 140, 20)
-        // Variável de apoio para formatação da altura do conteúdo
+        doc.setFontSize(12)
+        doc.text(`Data: ${dataAtual}`, 14, 30)
+        //variável de apoio para formatação da altura do conteúdo
         let y = 45
         doc.text("Nome", 14, y)
         doc.text("Telefone", 80, y)
         doc.text("E-mail", 130, y)
         y += 5
-        // Desenhar uma linha
-        doc.setLineWidth(0.5) // Expessura da linha
-        doc.line(10, y, 200, y) // Inicio, fim
+        //desenhar uma linha
+        doc.setLineWidth(0.5) //expessura da linha
+        doc.line(10, y, 200, y) //inicio, fim
         y += 10
-        // Renderizar os clientes (vetor)
+        //renderizar os clientes(vetor)
         clientes.forEach((c) => {
-            // Se ultrapassar o limite da folha (A4 = 270mm) adicionar outra página
+            //se ultrapassar o limite da folha  (A4 = 270mm) adicionar outra pagina
             if (y > 250) {
                 doc.addPage()
-                y = 20 // Cabeçalho da outra página
+                y = 20 //cabeçalho da outra página
             }
             doc.text(c.nomeCliente, 14, y)
             doc.text(c.telefoneCliente, 80, y)
-            doc.text(c.emailCliente || "N/A", 130, y)
-            y += 10 // Quebra de linha
+            doc.text(c.emailCliente || "N/A",  130, y)
+            y += 10 //quebra de linha
         })
-
-        // Setar o caminho do arquivo temporário
+        //Setar o caminho do arquivo temporário
         const tempDir = app.getPath('temp')
-        const filePath = path.join(tempDir, 'clientes.pdf') // Nome do arquivo
-        // Salvar temporariamente o arquivo
+        const filePath = path.join(tempDir, 'clientes.pdf') //nome do arquivo
+        //Salvar temporariamente o arquivo
         doc.save(filePath)
-        // Abrir o arquivo no navegador padrão
+        //Abrir o arquivo no navegador padrão
         shell.openPath(filePath)
     } catch (error) {
-        console.log(error)  
-    }
-}
-
-// Relatório de fornecedores
-async function gerarRelatorioFornecedores() {
-    try {
-        // Listar os fornecedores ordem alfabética
-        const fornecedores = await fornecedorModel.find().sort({nomeFornecedor: 1})
-        console.log(fornecedores)
-        // Formatação do docuumento
-        const doc = new jsPDF('p','mm','a4') // p - portrait | l - landscape
-        // Escrever um texto (título)
-        doc.setFontSize(16)
-        // Escrever um texto
-        doc.text("Relatório de fornecedores", 14, 20)
-        // Data
-        const dataAtual = new Date().toLocaleDateString('pt-BR')
-        doc.text(`Data: ${dataAtual}`, 140, 20)
-        // Variável de apoio para formatação da altura do conteúdo
-        let y = 45
-        doc.text("Nome", 14, y)
-        doc.text("Telefone", 80, y)
-        doc.text("E-mail", 130, y)
-        y += 5
-        // Desenhar uma linha
-        doc.setLineWidth(0.5) // Expessura da linha
-        doc.line(10, y, 200, y) // Inicio, fim
-        y += 10
-        // Renderizar os fornecedores (vetor)
-        fornecedores.forEach((c) => {
-            // Se ultrapassar o limite da folha (A4 = 270mm) adicionar outra página
-            if (y > 250) {
-                doc.addPage()
-                y = 20 // Cabeçalho da outra página
-            }
-            doc.text(c.nomeFornecedor, 14, y)
-            doc.text(c.telefoneFornecedor, 80, y)
-            doc.text(c.siteFornecedor || "N/A", 130, y)
-            y += 10 // Quebra de linha
-        })
-
-        // Setar o caminho do arquivo temporário
-        const tempDir = app.getPath('temp')
-        const filePath = path.join(tempDir, 'fornecedores.pdf') // Nome do arquivo
-        // Salvar temporariamente o arquivo
-        doc.save(filePath)
-        // Abrir o arquivo no navegador padrão
-        shell.openPath(filePath)
-    } catch (error) {
-        console.log(error)  
+        console.log(error)
     }
 }
 
 // Relatório de produtos
 async function gerarRelatorioProdutos() {
     try {
-        // Listar os produtos ordem alfabética
+        //listar os produtos por ordem alfabética
         const produtos = await produtoModel.find().sort({nomeProduto: 1})
         console.log(produtos)
-        // Formatação do docuumento
-        const doc = new jsPDF('p','mm','a4') // p - portrait | l - landscape
-        // Escrever um texto (título)
+        //formatação do documento
+        const doc = new jsPDF('l', 'mm', 'a4') //p:portrait e l:landscape
+        //tamanho da fonte
         doc.setFontSize(16)
-        // Escrever um texto
-        doc.text("Relatório de produtos", 14, 20)
-        // Data
+        //escrever um texto (título)
+        doc.text("Relatório de produtos", 14, 20) //x, y (mm)
+        //Data
         const dataAtual = new Date().toLocaleDateString('pt-BR')
-        doc.text(`Data: ${dataAtual}`, 140, 20)
-        // Variável de apoio para formatação da altura do conteúdo
+        doc.setFontSize(12)
+        doc.text(`Data: ${dataAtual}`, 14, 30)
+        //variável de apoio para formatação da altura do conteúdo
         let y = 45
         doc.text("Nome", 14, y)
-        doc.text("Barcode", 80, y)
-        doc.text("Preço", 130, y)
+        doc.text("Barcode", 50, y)
+        doc.text("Preço", 100, y)
+        doc.text("Fornecedor", 130, y)
         y += 5
-        // Desenhar uma linha
-        doc.setLineWidth(0.5) // Expessura da linha
-        doc.line(10, y, 200, y) // Inicio, fim
+        //desenhar uma linha
+        doc.setLineWidth(0.5) //expessura da linha
+        doc.line(10, y, 200, y) //inicio, fim
         y += 10
-        // Renderizar os produtos (vetor)
+        //renderizar os produtos(vetor)
         produtos.forEach((c) => {
-            // Se ultrapassar o limite da folha (A4 = 270mm) adicionar outra página
+            //se ultrapassar o limite da folha  (A4 = 270mm) adicionar outra pagina
             if (y > 250) {
                 doc.addPage()
-                y = 20 // Cabeçalho da outra página
+                y = 20 //cabeçalho da outra página
             }
             doc.text(c.nomeProduto, 14, y)
-            doc.text(c.barcodeProduto, 80, y)
-            doc.text(c.precoProduto || "N/A", 130, y)
-            y += 10 // Quebra de linha
-        })
+            doc.text(c.barcodeProduto, 50, y)
+            doc.text(c.precoProduto || "N/A",  100, y)
+            doc.text(c.fornecedorProduto, 130, y)
 
-        // Setar o caminho do arquivo temporário
+            y += 10 //quebra de linha
+        })
+        //Setar o caminho do arquivo temporário
         const tempDir = app.getPath('temp')
-        const filePath = path.join(tempDir, 'produtos.pdf') // Nome do arquivo
-        // Salvar temporariamente o arquivo
+        const filePath = path.join(tempDir, 'produtos.pdf') //nome do arquivo
+        //Salvar temporariamente o arquivo
         doc.save(filePath)
-        // Abrir o arquivo no navegador padrão
+        //Abrir o arquivo no navegador padrão
         shell.openPath(filePath)
     } catch (error) {
-        console.log(error)  
+        console.log(error)
     }
 }
+
+// Relatório de Forncedores
+async function gerarRelatorioFornecedores() {
+    try {
+        //listar os fornecedores por ordem alfabética
+        const fornecedores = await fornecedorModel.find().sort({nomeFornecedor: 1})
+        console.log(fornecedores)
+        //formatação do documento
+        const doc = new jsPDF('p', 'mm', 'a4') //p:portrait e l:landscape
+        //tamanho da fonte
+        doc.setFontSize(16)
+        //escrever um texto (título)
+        doc.text("Relatório de fornecedores", 14, 20) //x, y (mm)
+        //Data
+        const dataAtual = new Date().toLocaleDateString('pt-BR')
+        doc.setFontSize(12)
+        doc.text(`Data: ${dataAtual}`, 14, 30)
+        //variável de apoio para formatação da altura do conteúdo
+        let y = 45
+        doc.text("Nome", 14, y)
+        doc.text("Site", 60, y)
+        doc.text("Telefone", 130, y)
+        y += 5
+        //desenhar uma linha
+        doc.setLineWidth(0.5) //expessura da linha
+        doc.line(10, y, 200, y) //inicio, fim
+        y += 10
+        //renderizar os fornecedores(vetor)
+        fornecedores.forEach((c) => {
+            //se ultrapassar o limite da folha  (A4 = 270mm) adicionar outra pagina
+            if (y > 250) {
+                doc.addPage()
+                y = 20 //cabeçalho da outra página
+            }
+            doc.text(c.nomeFornecedor, 14, y)
+            doc.text(c.siteFornecedor, 60, y)
+            doc.text(c.telefoneFornecedor, 130, y)
+
+            y += 10 //quebra de linha
+        })
+        //Setar o caminho do arquivo temporário
+        const tempDir = app.getPath('temp')
+        const filePath = path.join(tempDir, 'fornecedores.pdf') //nome do arquivo
+        //Salvar temporariamente o arquivo
+        doc.save(filePath)
+        //Abrir o arquivo no navegador padrão
+        shell.openPath(filePath)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//relatorios.html
+// Adicione esses listeners junto com os outros existentes
+ipcMain.on('gerar-relatorio-clientes', () => gerarRelatorioClientes());
+ipcMain.on('gerar-relatorio-fornecedores', () => gerarRelatorioFornecedores());
+ipcMain.on('gerar-relatorio-produtos', () => gerarRelatorioProdutos());
+
+// Handler para carregar fornecedores
+ipcMain.handle('carregar-fornecedores', async () => {
+    try {
+        const fornecedores = await fornecedorModel.find({}, 'nomeFornecedor').sort({ nomeFornecedor: 1 });
+        return fornecedores.map(f => f.nomeFornecedor);
+    } catch (error) {
+        console.error('Erro ao buscar fornecedores:', error);
+        return [];
+    }
+});
