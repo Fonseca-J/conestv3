@@ -2,31 +2,36 @@
  * Processo de renderização
  * clientes.js
  */
- 
-const foco = document.getElementById('searchClient')
- 
+
+const foco = document.getElementById('searchClient');
+
+// Função para desabilitar o campo de busca
+function desabilitarBuscaCliente() {
+    const searchClient = document.getElementById('searchClient');
+    searchClient.disabled = true;
+    searchClient.style.backgroundColor = '#f0f0f0'; // Feedback visual
+}
+
+// Função para habilitar o campo de busca
+function habilitarBuscaCliente() {
+    const searchClient = document.getElementById('searchClient');
+    searchClient.disabled = false;
+    searchClient.style.backgroundColor = ''; // Remove o feedback visual
+    searchClient.focus(); // Volta o foco para o campo
+}
+
 //Mudar as propriedades do documento html ao iniciar a janela
 document.addEventListener('DOMContentLoaded', () => {
-    // Configurações iniciais
+    //btnCreate.disabled = true
     btnUpdate.disabled = true
     btnDelete.disabled = true
     foco.focus()
-    // Desativar o input das caixas de texto dentro da Div .bloqueio
+    //Desativar o input das caixas de texto dentro da Div .bloqueio
     document.querySelectorAll('.bloqueio input').forEach(input => {
         input.disabled = true
     })
 })
 
-// Receber a mensagem de CPF inválido
-api.cpfInvalido(() => {
-    document.getElementById('inputCpfClient').classList.add('campo-invalido')
-})
-
-// Remover a borda vermelha ao digitar
-document.getElementById('inputCpfClient').addEventListener('input', () => {
-    document.getElementById('inputCpfClient').classList.remove('campo-invalido')
-})
- 
 // Função para manipular o evento da tecla Enter
 function teclaEnter(event) {
     if (event.key === "Enter") {
@@ -34,18 +39,18 @@ function teclaEnter(event) {
         buscarCliente()
     }
 }
- 
+
 // Função para remover o manipulador do evento da tecla Enter
 function restaurarEnter() {
     document.getElementById('frmClient').removeEventListener('keydown', teclaEnter)
 }
- 
+
 // manipulando o evento (tecla Enter)
 document.getElementById('frmClient').addEventListener('keydown', teclaEnter)
- 
-// Array usado nos métodos para manipulação da estrutura de dados
+
+// Array usado nos métodos para manipulação da estrutura de dados 
 let arrayCliente = []
- 
+
 // Passo 1 - slide (capturar os dados dos inputs do form)
 let formCliente = document.getElementById('frmClient')
 let idCliente = document.getElementById('inputIdClient')
@@ -61,7 +66,7 @@ let ufCliente = document.getElementById('inputUfClient')
 let telefoneCliente = document.getElementById('inputTelefoneClient')
 let cpfCliente = document.getElementById('inputCpfClient')
 let complementoCliente = document.getElementById('inputComplementoClient')
- 
+
 // CRUD Create/Update >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // Evento associado ao botão adicionar (quando o botão for pressionado)
 formCliente.addEventListener('submit', async (event) => {
@@ -69,7 +74,10 @@ formCliente.addEventListener('submit', async (event) => {
     event.preventDefault()
         // Teste importante! (fluxo dos dados)
         / console.log(idCliente.value, nomeCliente.value, dddCliente.value, emailCliente.value)
- 
+
+    // Desativa o campo de busca antes de enviar
+    desabilitarBuscaCliente()
+
     // Passo 2 - slide (envio das informações para o main)
     // Estratégia para determinar se é um novo cadastro de cliente ou a edição de um cliente já existente
     if (idCliente.value === "") {
@@ -88,7 +96,16 @@ formCliente.addEventListener('submit', async (event) => {
             cpfCli: cpfCliente.value,
             complementoCli: complementoCliente.value
         }
-        api.novoCliente(cliente)
+        
+        try {
+            await api.novoCliente(cliente)
+            // Reativa o campo de busca após sucesso
+            habilitarBuscaCliente()
+        } catch (error) {
+            console.error("Erro ao criar cliente:", error)
+            // Reativa o campo mesmo em caso de erro
+            habilitarBuscaCliente()
+        }
     } else {
         // Criar um objeto
         const cliente = {
@@ -110,14 +127,14 @@ formCliente.addEventListener('submit', async (event) => {
     }
 })
 // Fim do CRUD Create/Update <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
+
 // CRUD Read >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function buscarCliente() {
     // Passo 1 (slide)
     let cliNome = document.getElementById('searchClient').value
     //validação
     if (cliNome === "") {
-        api.validarBusca() //validação do campo obrigatório
+        api.validarBusca() //validação do campo obrigatório 
         foco.focus()
     } else {
         //console.log(cliNome) // teste do passo 1
@@ -147,15 +164,13 @@ function buscarCliente() {
                 document.getElementById('inputTelefoneClient').value = c.telefoneCliente
                 document.getElementById('inputCpfClient').value = c.cpfCliente
                 document.getElementById('inputComplementoClient').value = c.complementoCliente
- 
-                //limpar o campo de busca e remover o foco
+
+                //limpar o campo de busca e desativar
                 foco.value = ""
- 
-                foco.disabled = true
+                desabilitarBuscaCliente()
                 btnRead.disabled = true
                 btnCreate.disabled = true
- 
-                //foco.blur()
+
                 //liberar os botões editar e excluir
                 document.getElementById('btnUpdate').disabled = false
                 document.getElementById('btnDelete').disabled = false
@@ -166,17 +181,21 @@ function buscarCliente() {
     }
     //setar o nome do cliente e liberar o botão adicionar
     api.setarNomeCliente(() => {
-        //setar o nome do cliente      
+        //setar o nome do cliente       
         let campoNome = document.getElementById('searchClient').value
         document.getElementById('inputNameClient').focus()
         document.getElementById('inputNameClient').value = campoNome
-        //limpar o campo de busca e remover o foco
+        
+        //limpar e desativar o campo de busca
         foco.value = ""
-        foco.blur()
+        desabilitarBuscaCliente()
+        
         //liberar o botão adicionar
         btnCreate.disabled = false
+        
         //restaurar o padrão da tecla Enter
         restaurarEnter()
+        
         //Reativar o input das caixas de texto
         document.querySelectorAll('.bloqueio input').forEach(input => {
             input.disabled = false
@@ -184,25 +203,22 @@ function buscarCliente() {
     })
 }
 // Fim do CRUD Read <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
- 
+
 // CRUD Delete >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function excluirCliente() {
     api.deletarCliente(idCliente.value) // Passo 1 do slide
 }
 // Fim do CRUD Delete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 
- 
- 
+
 // Função para preencher os dados de endereço automaticamente
 cepCliente.addEventListener('blur', async () => {
     let cep = cepCliente.value.replace(/\D/g, '') // Remove caracteres não numéricos
- 
+
     if (cep.length === 8) { // Verifica se o CEP tem 8 dígitos
         try {
             const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
             const data = await response.json()
- 
+
             if (data.erro) {
                 console.log("CEP não encontrado!")
             } else {
@@ -216,7 +232,7 @@ cepCliente.addEventListener('blur', async () => {
         }
     }
 })
- 
+
 // Mapeamento de DDDs por estado ou cidade
 const dddMapping = {
     // Região Norte
@@ -251,9 +267,9 @@ const dddMapping = {
     "PR": 41, // Paraná
     "RS": 51, // Rio Grande do Sul
     "SC": 48, // Santa Catarina
- 
+
 }
- 
+
 // Função para buscar o DDD com base na UF ou Cidade
 function getDDD(uf, cidade) {
     // Se a cidade específica estiver mapeada, use-a
@@ -263,16 +279,16 @@ function getDDD(uf, cidade) {
     // Caso contrário, use o DDD geral do estado (UF)
     return dddMapping[uf] || "Desconhecido"
 }
- 
+
 // Função para preencher os dados de endereço e DDD automaticamente
 cepCliente.addEventListener('blur', async () => {
     let cep = cepCliente.value.replace(/\D/g, '') // Remove caracteres não numéricos
- 
+
     if (cep.length === 8) { // Verifica se o CEP tem 8 dígitos
         try {
             const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
             const data = await response.json()
- 
+
             if (data.erro) {
                 console.log("CEP não encontrado!")
             } else {
@@ -280,7 +296,7 @@ cepCliente.addEventListener('blur', async () => {
                 bairroCliente.value = data.bairro
                 cidadeCliente.value = data.localidade
                 ufCliente.value = data.uf
- 
+
                 // Determina o DDD baseado na UF ou cidade
                 const ddd = getDDD(data.uf, data.localidade)
                 dddCliente.value = `(${ddd}) `
@@ -290,79 +306,25 @@ cepCliente.addEventListener('blur', async () => {
         }
     }
 })
- 
- 
+
+
 // Reset Form >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 api.resetarFormulario((args) => {
     resetForm()
 })
- 
+
 function resetForm() {
     // Recarregar a página
     location.reload()
 }
 // Fim - Reset Form <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-function validarCpf(cpf) {
-    cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
-
-    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
-        return false; // CPF inválido
-    }
-
-    let soma = 0, peso = 10;
-
-    // Primeiro dígito verificador
-    for (let i = 0; i < 9; i++) {
-        soma += parseInt(cpf.charAt(i)) * peso--;
-    }
-    let digito1 = 11 - (soma % 11);
-    if (digito1 >= 10) digito1 = 0;
-    if (parseInt(cpf.charAt(9)) !== digito1) return false;
-
-    // Segundo dígito verificador
-    soma = 0;
-    peso = 11;
-    for (let i = 0; i < 10; i++) {
-        soma += parseInt(cpf.charAt(i)) * peso--;
-    }
-    let digito2 = 11 - (soma % 11);
-    if (digito2 >= 10) digito2 = 0;
-    if (parseInt(cpf.charAt(10)) !== digito2) return false;
-
-    return true;
-}
-
-async function validarExistenciaCpf(cpf) {
-    const inputCpf = document.getElementById('inputCpfClient');
-
-    if (!validarCpf(cpf)) {
-        inputCpf.value = '';
-        inputCpf.placeholder = 'CPF inválido!';
-        return;
-    }
-
-    try {
-        const response = await fetch(`https://api.validador-cpf.com/${cpf}`); // API fictícia, substitua por uma real
-        const data = await response.json();
-
-        if (data.exists) {
-        } else {
-            inputCpf.placeholder = 'CPF não encontrado!';
-        }
-    } catch (error) {
-        inputCpf.placeholder = 'Erro ao validar CPF';
-        console.error('Erro ao validar CPF:', error);
-    }
-}
-
-document.getElementById('inputCpfClient').addEventListener('blur', () => {
-    const cpf = document.getElementById('inputCpfClient').value;
-    validarExistenciaCpf(cpf);
-});
-
-// Restaurar placeholder quando o usuário digitar novamente
-document.getElementById('inputCpfClient').addEventListener('input', function () {
-    this.placeholder = 'Digite seu CPF';
+// Função relacionada ao CPF
+api.clearCpf(() => {
+    let campoCpf = document.getElementById('inputCpfClient');
+    campoCpf.value = ""; // Limpa o campo
+    campoCpf.focus(); // Foca no campo
+    campoCpf.classList.add('input-error'); // Adiciona a classe de erro
+    validarCPF(campoCpf); // Força a revalidação do CPF
 });
 
